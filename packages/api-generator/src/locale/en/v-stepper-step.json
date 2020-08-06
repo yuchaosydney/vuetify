@@ -1,0 +1,8 @@
+{
+  "props": {
+    "step": "Content to display inside step circle"
+  },
+  "events": {
+    "click": "Emitted when component is clicked"
+  }
+}

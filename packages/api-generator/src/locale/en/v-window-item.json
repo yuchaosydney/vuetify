@@ -1,0 +1,8 @@
+{
+  "props": {
+    "disabled": "Prevents the item from becoming active when using the \"next\" and \"prev\" buttons or the `toggle` method",
+    "reverse-transition": "Sets the reverse transition",
+    "transition": "Mixins.Transitionable.props.transition",
+    "value": "Mixins.Groupable.props.value"
+  }
+}

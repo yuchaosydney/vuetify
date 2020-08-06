@@ -1,0 +1,6 @@
+{
+  "props": {
+    "fluid": "Removes viewport maximum-width size breakpoints",
+    "tag": "Components.Sheets.props.tag"
+  }
+}
