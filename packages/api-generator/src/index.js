@@ -188,6 +188,7 @@ function parseVariables () {
 // Generate components and directives
 const components = {}
 const directives = {}
+const descriptions = {}
 
 const installedComponents = Vue.options._base.options.components
 const installedDirectives = Vue.options._base.options.directives
@@ -267,19 +268,29 @@ function genApiLocale (locale, components, localeData) {
   for (const [comp, compData] of Object.entries(components)) {
     // attach sass vars to also
     compData.sass = variables[comp] || []
-
     // attach descriptions
     for (const [type, items] of Object.entries(compData)) {
-      if (type !== 'mixins') {
+      if (!['mixins', 'type'].includes(type)) {
         for (const item of items) {
           // get description component -> inherited -> generic -> missing
-          const description = (localeData[comp] && localeData[comp][type] && localeData[comp][item.name])
+          const description = (localeData[comp] && localeData[comp][type] && localeData[comp][type][item.name])
             ? localeData[comp][type][item.name]
             : (localeData[item.source] && localeData[item.source][type] && localeData[item.source][type][item.name])
               ? localeData[item.source][type][item.name]
               : (localeData.generic && localeData.generic[type] && localeData.generic[type][item.name])
                 ? localeData.generic[type][item.name]
                 : 'Missing description'
+
+          // track missing descriptions
+          if (description === 'Missing description') {
+            const source = item.source || comp
+            if (!descriptions[source]) {
+              descriptions[source] = []
+            }
+            if (descriptions[source] && !descriptions[source].includes(item.name)) {
+              descriptions[source].push(item.name)
+            }
+          }
           item.description = description
         }
       }
@@ -379,9 +390,8 @@ components['internationalization'] = map['internationalization']
 const componentApi = {}
 for (const [locale, localeData] of Object.entries(locales)) {
   componentApi[locale] = genApiLocale(locale, { ...components, ...directives }, localeData)
-  console.log(components['v-alert'].props[0])
 }
-
+writeJsonFile(descriptions, 'dist/missing-descriptions.json')
 writeApiFile(componentApi, 'dist/api.js')
 
 delete components['$vuetify']
