@@ -301,6 +301,9 @@ function genApiLocale (components, localeData, sassData) {
         for (const item of items) {
           item.description = genApiDescription(comp, type, item, localeData)
           genMissingDescriptions(item.source || comp, item.name, !item.description)
+          if (!item.description) {
+            console.log(item)
+          }
         }
       }
     }
@@ -316,7 +319,7 @@ function genSassLocale (sass, localeData) {
     // attach descriptions
     for (const item of items) {
       item.description = genSassDescription(comp, item, localeData)
-      genMissingDescriptions(comp, item.name, !item.description)
+      // genMissingDescriptions(comp, item.name, !item.description)
     }
   }
   return sass

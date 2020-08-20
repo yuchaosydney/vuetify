@@ -1,7 +1,5 @@
 {
   "props": {
-    "absolute": "Mixins.Positionable.props.absolute",
-    "bottom": "Mixins.Positionable.props.bottom",
     "collapse": "Puts the toolbar into a collapsed state reducing its maximum width.",
     "dense": "Reduces the height of the toolbar content to 48px (96px when using the **prominent** prop).",
     "extended": "Use this prop to increase the height of the toolbar _without_ using the `extension` slot for adding content. May be used in conjunction with the **extension-height** prop, and any of the other props that affect the height of the toolbar, e.g. **prominent**, **dense**, etc., **WITH THE EXCEPTION** of **height**.",

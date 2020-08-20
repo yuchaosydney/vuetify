@@ -1,7 +1,5 @@
 {
   "props": {
-    "absolute": "Mixins.Positionable.props.absolute",
-    "opacity": "Sets the overlay opacity",
-    "zIndex": "Mixins.Menuable.props.zIndex"
+    "opacity": "Sets the overlay opacity"
   }
 }

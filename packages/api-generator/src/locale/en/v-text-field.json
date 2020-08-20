@@ -19,6 +19,7 @@
     "rounded": "Adds a border radius to the input",
     "rows": "Controls the number of rows in a textarea",
     "rowHeight": "Designate a custom _row-height_. Used for determining input height when using **multi-line** or **textarea** props",
+    "singleLine": "Label does not move on focus/dirty",
     "solo": "Mixins.Soloable.props.solo",
     "soloInverted": "Mixins.Soloable.props.soloInverted",
     "suffix": "Displays suffix text",

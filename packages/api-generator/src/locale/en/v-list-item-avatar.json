@@ -1,6 +1,5 @@
 {
   "props": {
-    "color": "Mixins.Colorable.props.color",
     "horizontal": "Uses an alternative horizontal style."
   }
 }

@@ -9,10 +9,7 @@
     "label": "The **aria-label** used for the badge",
     "offsetX": "Offset the badge on the x-axis.",
     "offsetY": "Offset the badge on the y-axis.",
-    "bottom": "Mixins.Positionable.props.bottom",
-    "left": "Mixins.Positionable.props.left",
-    "overlap": "Overlaps the slotted content on top of the component.",
-    "transition": "Mixins.Transitionable.props.transition"
+    "overlap": "Overlaps the slotted content on top of the component."
   },
   "slots": {
     "badge": "The slot used for the badge's content."

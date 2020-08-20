@@ -1,6 +1,5 @@
 {
   "props": {
-    "activeClass": "Mixins.BaseItemGroup.props.activeClass",
     "continuous": "If `true`, window will \"wrap around\" from the last item to the first, and from the first item to the last",
     "nextIcon": "Icon used for the \"next\" button if `show-arrows` is `true`",
     "prevIcon": "Icon used for the \"prev\" button if `show-arrows` is `true`",

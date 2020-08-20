@@ -1,10 +1,8 @@
 {
   "props": {
     "cancelText": "Sets the default text for the cancel button when using the **large** prop",
-    "eager": "Mixins.Bootable.props.eager",
     "large": "Attaches a submit and cancel button to the dialog",
-    "saveText": "Sets the default text for the save button when using the **large** prop",
-    "transition": "Mixins.Transitionable.props.transition"
+    "saveText": "Sets the default text for the save button when using the **large** prop"
   },
   "slots": {
     "input": "Slot used to denote input component for v-edit-dialog"

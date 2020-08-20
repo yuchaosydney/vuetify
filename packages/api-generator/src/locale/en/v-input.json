@@ -8,7 +8,6 @@
     "height": "Sets the height of the input",
     "hint": "Hint text",
     "label": "Sets input label",
-    "loading": "Mixins.Loadable.props.loading",
     "persistentHint": "Forces hint to always be visible",
     "placeholder": "Sets the input's placeholder text",
     "prependIcon": "Prepends an icon to the component, uses the same syntax as `v-icon`",

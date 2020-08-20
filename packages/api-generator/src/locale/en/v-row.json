@@ -16,7 +16,6 @@
     "justifyMd": "Changes the **justify-content** property on medium and greater breakpoints.",
     "justifyLg": "Changes the **justify-content** property on large and greater breakpoints.",
     "justifyXl": "Changes the **justify-content** property on extra large and greater breakpoints.",
-    "noGutters": "Removes the gutter between `v-col`s.",
-    "tag": "Components.Sheets.props.tag"
+    "noGutters": "Removes the gutter between `v-col`s."
   }
 }

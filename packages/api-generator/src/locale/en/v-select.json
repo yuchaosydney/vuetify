@@ -5,13 +5,11 @@
     "cacheItems": "Keeps a local _unique_ copy of all items that have been passed through the **items** prop.",
     "chips": "Changes display of selections to chips",
     "combobox": "The single select variant of **tags**",
-    "contentClass": "Mixins.Detachable.props.contentClass",
     "dark": "Components.Inputs.props.dark",
     "debounceSearch": "Debounces the search input value being emitted",
     "deletableChips": "Adds a remove icon to selected chips",
     "disabled": "Disables the input",
     "disableLookup": "Disables keyboard lookup",
-    "eager": "Mixins.Bootable.props.eager",
     "editable": " Creates an editable button - [spec](https://material.io/guidelines/components/buttons.html#buttons-dropdown-buttons)",
     "filter": "The function used for filtering items",
     "hideSelected": "Do not display in the select menu items that are already selected",
@@ -32,13 +30,11 @@
     "segmented": "Creates a segmented button - [spec](https://material.io/guidelines/components/buttons.html#buttons-dropdown-buttons)",
     "smallChips": "Changes display of selections to chips with the **small** property",
     "tags": "Tagging functionality, allows the user to create new values not available from the **items** prop",
-    "valueComparator": "The comparison algorithm used for values. [More info](https://github.com/vuetifyjs/vuetify/blob/master/packages/vuetify/src/util/helpers.ts)",
-    "value": "Components.Inputs.props.value"
+    "valueComparator": "The comparison algorithm used for values. [More info](https://github.com/vuetifyjs/vuetify/blob/master/packages/vuetify/src/util/helpers.ts)"
   },
   "slots": {
     "append-item": "Adds an item after menu content",
     "item": "Define a custom item appearance",
-    "no-data": "Mixins.Filterable.slots.noData",
     "prepend-item": "Adds an item before menu content",
     "selection": "Define a custom selection appearance"
   },
