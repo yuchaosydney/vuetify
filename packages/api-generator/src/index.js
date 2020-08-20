@@ -173,7 +173,8 @@ function parseVariables () {
   const folders = comps
     .trim()
     .replace(/export\s\*\sfrom\s'.\//g, '')
-    .split(`'\n`)
+    .replace(/'/g, '')
+    .split(`\n`)
   for (const folder of folders) {
     varPaths.push({ path: `${rootDir}/${folder}/_variables.scss`, tag: hyphenate(folder) })
   }
@@ -188,7 +189,7 @@ function parseVariables () {
 // Generate components and directives
 const components = {}
 const directives = {}
-const descriptions = {}
+const missingDescriptions = {}
 
 const installedComponents = Vue.options._base.options.components
 const installedDirectives = Vue.options._base.options.directives
@@ -263,40 +264,62 @@ function writePlainFile (content, file) {
     stream.end()
   })
 }
+function genMissingDescriptions (comp, name, missing) {
+  if (missing) {
+    if (!missingDescriptions[comp]) {
+      missingDescriptions[comp] = []
+    }
+    if (missingDescriptions[comp] && !missingDescriptions[comp].includes(name)) {
+      missingDescriptions[comp].push(name)
+    }
+  }
+}
 
-function genApiLocale (locale, components, localeData) {
+function genApiDescription (comp, type, item, localeData) {
+  // get description component -> inherited -> generic -> missing
+  return (localeData[comp] && localeData[comp][type] && localeData[comp][type][item.name])
+    ? localeData[comp][type][item.name]
+    : (localeData[item.source] && localeData[item.source][type] && localeData[item.source][type][item.name])
+      ? localeData[item.source][type][item.name]
+      : (localeData.generic && localeData.generic[type] && localeData.generic[type][item.name])
+        ? localeData.generic[type][item.name]
+        : ''
+}
+
+function genSassDescription (comp, item, localeData) {
+  // get description sass -> missing
+  return (localeData[comp] && localeData[comp][item.name])
+    ? localeData[comp][item.name]
+    : ''
+}
+
+function genApiLocale (components, localeData, sassData) {
   for (const [comp, compData] of Object.entries(components)) {
-    // attach sass vars to also
-    compData.sass = variables[comp] || []
     // attach descriptions
     for (const [type, items] of Object.entries(compData)) {
       if (!['mixins', 'type'].includes(type)) {
         for (const item of items) {
-          // get description component -> inherited -> generic -> missing
-          const description = (localeData[comp] && localeData[comp][type] && localeData[comp][type][item.name])
-            ? localeData[comp][type][item.name]
-            : (localeData[item.source] && localeData[item.source][type] && localeData[item.source][type][item.name])
-              ? localeData[item.source][type][item.name]
-              : (localeData.generic && localeData.generic[type] && localeData.generic[type][item.name])
-                ? localeData.generic[type][item.name]
-                : 'Missing description'
-
-          // track missing descriptions
-          if (description === 'Missing description') {
-            const source = item.source || comp
-            if (!descriptions[source]) {
-              descriptions[source] = []
-            }
-            if (descriptions[source] && !descriptions[source].includes(item.name)) {
-              descriptions[source].push(item.name)
-            }
-          }
-          item.description = description
+          item.description = genApiDescription(comp, type, item, localeData)
+          genMissingDescriptions(item.source || comp, item.name, !item.description)
         }
       }
     }
+    // attach sass vars
+    compData.sass = sassData[comp] || []
   }
   return components
+}
+
+function genSassLocale (sass, localeData) {
+  for (const [comp, items] of Object.entries(sass)) {
+    if (!items || !items.length) continue
+    // attach descriptions
+    for (const item of items) {
+      item.description = genSassDescription(comp, item, localeData)
+      genMissingDescriptions(comp, item.name, !item.description)
+    }
+  }
+  return sass
 }
 
 const tags = Object.keys(components).reduce((t, k) => {
@@ -354,8 +377,6 @@ const fakeComponents = ts => {
   }).join('\n')
 }
 
-const variables = parseVariables()
-
 if (!fs.existsSync('dist')) {
   fs.mkdirSync('dist', 0o755)
 }
@@ -364,7 +385,6 @@ if (!fs.existsSync('dist')) {
 // for vetur support at some point
 writeJsonFile(tags, 'dist/tags.json')
 writeJsonFile(attributes, 'dist/attributes.json')
-writeJsonFile(variables, 'dist/variables.json')
 writePlainFile(fakeComponents(false), 'dist/fakeComponents.js')
 writePlainFile(fakeComponents(true), 'dist/fakeComponents.ts')
 
@@ -388,11 +408,16 @@ components['internationalization'] = map['internationalization']
 
 // generate api for all locales
 const componentApi = {}
+const sassApi = {}
+const sassVariables = parseVariables()
+
 for (const [locale, localeData] of Object.entries(locales)) {
-  componentApi[locale] = genApiLocale(locale, { ...components, ...directives }, localeData)
+  sassApi[locale] = genSassLocale(sassVariables, localeData)
+  componentApi[locale] = genApiLocale({ ...components, ...directives }, localeData, sassApi[locale])
 }
-writeJsonFile(descriptions, 'dist/missing-descriptions.json')
+writeJsonFile(missingDescriptions, 'dist/missing-descriptions.json')
 writeApiFile(componentApi, 'dist/api.js')
+writeApiFile(sassApi, 'dist/sass-api.js')
 
 delete components['$vuetify']
 delete components['internationalization']
