@@ -277,32 +277,38 @@ function genMissingDescriptions (comp, name, missing) {
   }
 }
 
-function genApiDescription (comp, type, item, localeData) {
-  // get description component -> inherited -> generic -> missing
-  return (localeData[comp] && localeData[comp][type] && localeData[comp][type][item.name])
-    ? localeData[comp][type][item.name]
-    : (localeData[item.source] && localeData[item.source][type] && localeData[item.source][type][item.name])
-      ? localeData[item.source][type][item.name]
-      : (localeData.generic && localeData.generic[type] && localeData.generic[type][item.name])
-        ? localeData.generic[type][item.name]
+function genDescriptions (comp, type, item) {
+  const description = {}
+  for (const [locale, localeData] of Object.entries(locales)) {
+    // get description sass -> missing
+    if (type === 'sass') {
+      description[locale] = (localeData[comp] && localeData[comp][item.name])
+        ? localeData[comp][item.name]
         : ''
+    } else {
+      // get description component -> inherited -> generic -> missing
+      description[locale] = (localeData[comp] && localeData[comp][type] && localeData[comp][type][item.name])
+        ? localeData[comp][type][item.name]
+        : (localeData[item.source] && localeData[item.source][type] && localeData[item.source][type][item.name])
+          ? localeData[item.source][type][item.name]
+          : (localeData.generic && localeData.generic[type] && localeData.generic[type][item.name])
+            ? localeData.generic[type][item.name]
+            : ''
+    }
+    if (type !== 'sass') {
+      genMissingDescriptions(item.source || comp, `${item.name} - ${type}`, !description.en)
+    }
+  }
+  return description
 }
 
-function genSassDescription (comp, item, localeData) {
-  // get description sass -> missing
-  return (localeData[comp] && localeData[comp][item.name])
-    ? localeData[comp][item.name]
-    : ''
-}
-
-function genApiLocale (components, localeData, sassData) {
+function genComponentApi (components, sassData) {
   for (const [comp, compData] of Object.entries(components)) {
     // attach descriptions
     for (const [type, items] of Object.entries(compData)) {
       if (!['mixins', 'type'].includes(type)) {
         for (const item of items) {
-          item.description = genApiDescription(comp, type, item, localeData)
-          genMissingDescriptions(item.source || comp, `${item.name} - ${type}`, !item.description)
+          item.description = genDescriptions(comp, type, item)
         }
       }
     }
@@ -312,13 +318,12 @@ function genApiLocale (components, localeData, sassData) {
   return components
 }
 
-function genSassLocale (sass, localeData) {
+function genSassApi () {
+  const sass = parseVariables()
   for (const [comp, items] of Object.entries(sass)) {
     if (!items || !items.length) continue
-    // attach descriptions
     for (const item of items) {
-      item.description = genSassDescription(comp, item, localeData)
-      // genMissingDescriptions(comp, `${item.name} - sass`, !item.description)
+      item.description = genDescriptions(comp, 'sass', item)
     }
   }
   return sass
@@ -409,14 +414,9 @@ components['$vuetify'] = map['$vuetify']
 components['internationalization'] = map['internationalization']
 
 // generate api for all locales
-const componentApi = {}
-const sassApi = {}
-const sassVariables = parseVariables()
+const sassApi = genSassApi()
+const componentApi = genComponentApi({ ...components, ...directives }, sassApi)
 
-for (const [locale, localeData] of Object.entries(locales)) {
-  sassApi[locale] = genSassLocale(sassVariables, localeData)
-  componentApi[locale] = genApiLocale({ ...components, ...directives }, localeData, sassApi[locale])
-}
 writeJsonFile(missingDescriptions, 'dist/missing-descriptions.json')
 writeApiFile(componentApi, 'dist/api.js')
 writeApiFile(sassApi, 'dist/sass-api.js')
