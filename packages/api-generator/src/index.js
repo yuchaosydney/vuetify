@@ -302,7 +302,7 @@ function genDescriptions (comp, type, item) {
   return description
 }
 
-function genComponentApi (components, sassData) {
+function genComponentApi (components) {
   for (const [comp, compData] of Object.entries(components)) {
     // attach descriptions
     for (const [type, items] of Object.entries(compData)) {
@@ -312,8 +312,6 @@ function genComponentApi (components, sassData) {
         }
       }
     }
-    // attach sass vars
-    compData.sass = sassData[comp] || []
   }
   return components
 }
@@ -415,7 +413,7 @@ components['internationalization'] = map['internationalization']
 
 // generate api for all locales
 const sassApi = genSassApi()
-const componentApi = genComponentApi({ ...components, ...directives }, sassApi)
+const componentApi = genComponentApi({ ...components, ...directives })
 
 writeJsonFile(missingDescriptions, 'dist/missing-descriptions.json')
 writeApiFile(componentApi, 'dist/api.js')
