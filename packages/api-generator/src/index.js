@@ -68,7 +68,6 @@ function getPropSource (name, mixins) {
   for (let i = 0; i < mixins.length; i++) {
     let mixin = mixins[i]
     if (mixin.name !== 'VueComponent') mixin = Vue.extend(mixin)
-
     if (mixin.options.name) {
       const source = Object.keys(mixin.options.props || {}).find(p => p === name) && mixin.options.name
       const found = getPropSource(name, [mixin.super].concat(mixin.options.extends).concat(mixin.options.mixins).filter(m => !!m)) || source
@@ -80,8 +79,10 @@ function getPropSource (name, mixins) {
 }
 
 function genProp (name, prop, mixins, cmp) {
+  // const component = (hyphenate(cmp).substr(0, 2) !== 'v-') ? `v-${hyphenate(cmp)}` : hyphenate(cmp)
   const type = getPropType(prop.type)
-  const source = getPropSource(name, mixins) || cmp
+  const propSource = getPropSource(name, mixins) || hyphenate(cmp)
+  const source = (propSource.slice(-10) === 'transition') ? 'transitions' : propSource
 
   return {
     name,
@@ -264,6 +265,7 @@ function writePlainFile (content, file) {
     stream.end()
   })
 }
+
 function genMissingDescriptions (comp, name, missing) {
   if (missing) {
     if (!missingDescriptions[comp]) {
@@ -301,8 +303,8 @@ function genApiLocale (components, localeData, sassData) {
         for (const item of items) {
           item.description = genApiDescription(comp, type, item, localeData)
           genMissingDescriptions(item.source || comp, item.name, !item.description)
-          if (!item.description) {
-            console.log(item)
+          if (item.source === 'transitions') {
+            console.log(comp, item)
           }
         }
       }
