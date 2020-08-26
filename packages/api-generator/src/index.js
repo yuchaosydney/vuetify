@@ -302,10 +302,7 @@ function genApiLocale (components, localeData, sassData) {
       if (!['mixins', 'type'].includes(type)) {
         for (const item of items) {
           item.description = genApiDescription(comp, type, item, localeData)
-          genMissingDescriptions(item.source || comp, item.name, !item.description)
-          if (item.source === 'transitions') {
-            console.log(comp, item)
-          }
+          genMissingDescriptions(item.source || comp, `${item.name} - ${type}`, !item.description)
         }
       }
     }
@@ -321,7 +318,7 @@ function genSassLocale (sass, localeData) {
     // attach descriptions
     for (const item of items) {
       item.description = genSassDescription(comp, item, localeData)
-      // genMissingDescriptions(comp, item.name, !item.description)
+      // genMissingDescriptions(comp, `${item.name} - sass`, !item.description)
     }
   }
   return sass

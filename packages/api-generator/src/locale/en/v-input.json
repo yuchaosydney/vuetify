@@ -15,5 +15,12 @@
     "tabindex": "Tab index of input",
     "toggleKeys": "Array of key codes that will toggle the input (if it supports toggling)",
     "value": "The input's value"
+  },
+  "events": {
+    "click": "Emitted when input is clicked",
+    "click:append": "Emitted when appended icon is clicked",
+    "click:prepend": "Emitted when prepended icon is clicked",
+    "mousedown": "Emitted when click is pressed",
+    "mouseup": "Emitted when click is released"
   }
 }
