@@ -7,6 +7,7 @@
     "openDelay": "Delay (in ms) after which tooltip opens (when `open-on-hover` prop is set to **true**)",
     "openOnClick": "Designates whether the tooltip should open on activator click",
     "openOnHover": "Designates whether the tooltip should open on activator hover",
-    "tag": "Specifies a custom tag for the activator wrapper"
+    "tag": "Specifies a custom tag for the activator wrapper",
+    "transition": "Sets the component transition. Can be one of the [built in transitions](/styles/transitions) or one your own."
   }
 }

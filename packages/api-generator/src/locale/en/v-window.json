@@ -9,7 +9,6 @@
     "showArrowsOnHover": "Display the \"next\" and \"prev\" buttons on hover. `show-arrows` MUST ALSO be set.",
     "touch": "Provide a custom **left** and **right** function when swiped left or right.",
     "touchless": "Disable touch support.",
-    "transition": "The transition used when the component progressing through items. Can be one of the [built in transitions](/styles/transitions) or one your own.",
     "vertical": "Uses a vertical transition when changing windows."
   },
   "events": {

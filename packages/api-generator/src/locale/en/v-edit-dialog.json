@@ -2,7 +2,8 @@
   "props": {
     "cancelText": "Sets the default text for the cancel button when using the **large** prop",
     "large": "Attaches a submit and cancel button to the dialog",
-    "saveText": "Sets the default text for the save button when using the **large** prop"
+    "saveText": "Sets the default text for the save button when using the **large** prop",
+    "transition": "Sets the component transition. Can be one of the [built in transitions](/styles/transitions) or one your own."
   },
   "slots": {
     "input": "Slot used to denote input component for v-edit-dialog"

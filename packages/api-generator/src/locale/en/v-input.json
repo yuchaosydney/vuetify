@@ -17,6 +17,7 @@
     "value": "The input's value"
   },
   "events": {
+    "change": "Emitted when the input is changed by user interaction",
     "click": "Emitted when input is clicked",
     "click:append": "Emitted when appended icon is clicked",
     "click:prepend": "Emitted when prepended icon is clicked",
