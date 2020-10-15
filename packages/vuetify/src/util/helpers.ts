@@ -405,3 +405,15 @@ export function mergeDeep (
 export function fillArray<T> (length: number, obj: T) {
   return Array(length).fill(obj)
 }
+
+export const uuid = () => {
+  let dt = new Date().getTime()
+  const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    var r = (dt + Math.random() * 16) % 16 | 0
+    dt = Math.floor(dt / 16)
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16)
+  })
+  return uuid
+}
+
+export const randomHexColor = () => `#${Math.floor(Math.random() * 16777215).toString(16)}`
