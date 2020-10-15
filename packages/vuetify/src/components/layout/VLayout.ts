@@ -22,7 +22,7 @@ interface LayoutValue {
 export const createLayout = (history: Ref<string[]>) => {
   const entries = ref(new Map<string, LayoutValue>())
 
-  const getValues = (history: string[], values: Map<string, LayoutValue>, overlaps: Map<string, LayoutValue>, lastId?: string) => {
+  const getValues = (history: string[], values: Map<string, LayoutValue>, lastId?: string) => {
     let obj = { top: 0, left: 0, right: 0, bottom: 0 }
     const arr = lastId ? history.slice(0, history.indexOf(lastId)) : history
     for (const h of arr) {
@@ -57,7 +57,7 @@ export const createLayout = (history: Ref<string[]>) => {
   })
 
   const computedValues = computed(() => {
-    return getValues(history.value, entries.value, new Map())
+    return getValues(history.value, entries.value)
   })
 
   provide(VuetifyLayoutKey, {
@@ -65,7 +65,7 @@ export const createLayout = (history: Ref<string[]>) => {
       entries.value.set(id, { id, position, value })
 
       return computed(() => {
-        const values = getValues(history.value, entries.value, overlaps.value, id)
+        const values = getValues(history.value, entries.value, id)
 
         const overlap = overlaps.value.get(id)
         if (overlap) {
