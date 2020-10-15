@@ -1,4 +1,4 @@
-import { defineComponent, h, InjectionKey, inject, provide, computed, Ref, ref, Prop, onBeforeUnmount } from 'vue'
+import { defineComponent, h, InjectionKey, inject, provide, computed, Ref, ref, Prop, onBeforeUnmount, watch } from 'vue'
 
 export const VuetifyLayoutKey: InjectionKey<any> = Symbol.for('vuetify-layout')
 
@@ -6,8 +6,9 @@ export const useLayout = (props: { id?: string, height?: number, width?: number 
   const layout = inject(VuetifyLayoutKey)
 
   if (!layout) throw new Error('No layout!')
-  console.log(props.id, position)
-  const values = layout.register(position, props.id, position === 'top' || position === 'bottom' ? props.height : props.width)
+  const size = computed(() => position === 'top' || position === 'bottom' ? props.height : props.width)
+  const values = layout.register(position, props.id, size.value)
+  watch(size, v => layout.update(props.id, v))
   onBeforeUnmount(() => layout.unregister(props.id))
 
   return values
@@ -27,7 +28,6 @@ export const createLayout = (history: Ref<string[]>) => {
     const arr = lastId ? history.slice(0, history.indexOf(lastId)) : history
     for (const h of arr) {
       const [id] = h.split(':')
-      console.log(lastId, id)
       const layout = values.get(id)
       if (!layout) continue
 
