@@ -1,22 +1,19 @@
-import { randomHexColor, uuid } from '../../util/helpers'
-import { computed, defineComponent, h, onBeforeUnmount } from 'vue'
+import { randomHexColor } from '../../util/helpers'
+import { defineComponent, h } from 'vue'
 import { useLayout } from './VLayout'
 
 export const VAppBar = defineComponent({
   name: 'VAppBar',
   props: {
     zOrder: Number,
-    height: Number,
+    height: {
+      type: Number,
+      default: 48,
+    },
+    id: String,
   },
   setup (props, { slots }) {
-    const layout = useLayout()
-
-    const height = computed(() => props.height || 48)
-    const id = 'bar' + uuid()
-
-    const values = layout.register('top', id, height, props.zOrder)
-
-    onBeforeUnmount(() => layout.unregister(id))
+    const values = useLayout(props, 'top')
 
     const background = randomHexColor()
 
@@ -24,7 +21,7 @@ export const VAppBar = defineComponent({
       style: {
         position: 'fixed',
         background,
-        height: `${height.value}px`,
+        height: `${props.height}px`,
         width: `calc(100% - ${values.value.left}px - ${values.value.right}px)`,
         marginTop: `${values.value.top}px`,
         marginLeft: `${values.value.left}px`,
