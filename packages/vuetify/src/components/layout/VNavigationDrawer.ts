@@ -30,6 +30,7 @@ export const VNavigationDrawer = defineComponent({
         marginBottom: `${values.value.bottom}px`,
         marginLeft: props.right ? undefined : `${values.value.left}px`,
         marginRight: props.right ? `${values.value.right}px` : undefined,
+        transition: 'all 1s linear',
       },
     }, slots.default!())
   },

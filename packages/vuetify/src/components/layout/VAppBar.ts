@@ -26,6 +26,7 @@ export const VAppBar = defineComponent({
         marginTop: `${values.value.top}px`,
         marginLeft: `${values.value.left}px`,
         marginRight: `${values.value.right}px`,
+        transition: 'all 1s linear',
       },
     }, slots.default!())
   },

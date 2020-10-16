@@ -26,6 +26,7 @@ export const VFooter = defineComponent({
         marginBottom: `${values.value.bottom}px`,
         marginLeft: `${values.value.left}px`,
         marginRight: `${values.value.right}px`,
+        transition: 'all 1s linear',
       },
     }, slots.default!())
   },

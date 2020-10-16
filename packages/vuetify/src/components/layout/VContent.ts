@@ -7,7 +7,7 @@ export const VContent = defineComponent({
   setup (_, { slots }) {
     const layout = inject(VuetifyLayoutKey)
 
-    const padding = computed(() => `${layout.values.value.top}px 0 0 ${layout.values.value.left}px`)
+    const padding = computed(() => `${layout.values.value.top}px ${layout.values.value.right}px ${layout.values.value.bottom}px ${layout.values.value.left}px`)
 
     const background = randomHexColor()
 
@@ -19,6 +19,7 @@ export const VContent = defineComponent({
         width: '100%',
         background,
         flexDirection: 'column',
+        transition: 'all 1s linear',
       },
     }, slots.default!())
   },
