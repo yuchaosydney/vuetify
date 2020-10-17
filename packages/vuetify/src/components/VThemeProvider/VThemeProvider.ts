@@ -9,10 +9,10 @@ export const VThemeProvider = defineComponent({
     },
   },
   setup (props, { slots }) {
-    const { themeClass } = useTheme(props)
+    const { themeClass, current } = useTheme(props)
 
     return () => h('div', {
       class: ['v-theme-provider', themeClass.value],
-    }, slots.default?.())
+    }, [h('div', [`providing ${current.value} theme`]), slots.default?.()])
   },
 })

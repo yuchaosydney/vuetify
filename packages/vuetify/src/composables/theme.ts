@@ -37,40 +37,40 @@ interface Theme {
 export const VuetifyThemeSymbol: InjectionKey<Theme> = Symbol.for('vuetify-theme')
 
 export const useTheme = (props: any = {}) => {
-  const theme = inject(VuetifyThemeSymbol)
+  const themeProvide = inject(VuetifyThemeSymbol)
 
-  if (!theme) throw new Error('Could not find vuetify theme provider')
+  if (!themeProvide) throw new Error('Could not find vuetify theme provider')
 
-  onBeforeMount(() => theme.init())
+  onBeforeMount(() => themeProvide.init())
 
-  const current = computed(() => props.theme || theme.current.value)
-  const variant = computed(() => theme.themes.value[current.value])
+  const current = computed(() => props.theme || themeProvide.current.value)
+  const colors = computed(() => themeProvide.themes.value[current.value])
   const themeClass = computed(() => `theme--${current.value}`)
 
-  const setTheme = (name: keyof VuetifyThemes, variant: VuetifyTheme) => {
-    theme.themes.value[name] = variant
+  const setTheme = (name: keyof VuetifyThemes, theme: VuetifyTheme) => {
+    themeProvide.themes.value[name] = theme
   }
 
-  const setCurrent = (name: keyof VuetifyThemes) => theme.current.value = name
+  const setCurrent = (name: keyof VuetifyThemes) => themeProvide.current.value = name
 
   const checkContrast = (first: keyof VuetifyTheme, second: keyof VuetifyTheme) => {
-    return contrastRatio(colorToInt(variant.value[first]), colorToInt(variant.value[second]))
+    return contrastRatio(colorToInt(colors.value[first]), colorToInt(colors.value[second]))
   }
 
   const getTextClass = (color: keyof VuetifyTheme) => {
-    const crLight = checkContrast(color, 'text')
-    const crDark = checkContrast(color, 'inverseText')
-    console.log(color, variant.value[color], variant.value.text, crLight, variant.value.inverseText, crDark)
-    return crLight > crDark ? 'text' : 'inverseText'
+    const ratioNormal = checkContrast(color, 'text')
+    const ratioInverse = checkContrast(color, 'inverseText')
+    console.log(current.value, color, colors.value[color], colors.value.text, ratioNormal, colors.value.inverseText, ratioInverse)
+    return ratioNormal > ratioInverse ? 'text' : 'inverseText'
   }
 
   provide(VuetifyThemeSymbol, {
     init: () => null,
     current,
-    themes: theme.themes,
+    themes: themeProvide.themes,
   })
 
-  return { themeClass, setTheme, setCurrent, checkContrast, getTextClass, current: theme.current, themes: theme.themes }
+  return { themeClass, setTheme, setCurrent, checkContrast, getTextClass, current, themes: themeProvide.themes }
 }
 
 export const createTheme = (options?: ThemeOptions): Theme => {

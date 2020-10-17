@@ -3,29 +3,33 @@
     <v-theme-provider>
       <button @click="change">modify light theme</button>
       <button @click="def">cycle defined themes</button>
-      <div>regular text</div>
-      <div class="primary">primary</div>
-      <div class="secondary">secondary</div>
-      <div class="primaryVariant">primaryVariant</div>
-      <v-icon />
+      <div>
+        <div v-for="color in colors" :class="['box', color]" :key="color">{{ color }}</div>
+      </div>
+      <div>
+        <div v-for="color in textColors" :class="['box', `${color}--text`]" :key="`${color}--text`">{{ color }}</div>
+      </div>
       <v-theme-provider theme="dark">
-        <div>regular text</div>
-        <div class="primary">primary</div>
-        <div class="secondary">secondary</div>
-        <div class="primaryVariant">primaryVariant</div>
-        <v-icon />
+        <div>
+          <div v-for="color in colors" :class="['box', color]" :key="color">{{ color }}</div>
+        </div>
+        <div>
+          <div v-for="color in textColors" :class="['box', `${color}--text`]" :key="`${color}--text`">{{ color }}</div>
+        </div>
         <v-theme-provider theme="contrast">
-          <div>regular text</div>
-          <div class="primary">primary</div>
-          <div class="secondary">secondary</div>
-          <div class="primaryVariant">primaryVariant</div>
-          <v-icon />
+          <div>
+            <div v-for="color in colors" :class="['box', color]" :key="color">{{ color }}</div>
+          </div>
+          <div>
+            <div v-for="color in textColors" :class="['box', `${color}--text`]" :key="`${color}--text`">{{ color }}</div>
+          </div>
           <v-theme-provider theme="light">
-            <div>regular text</div>
-            <div class="primary">primary</div>
-            <div class="secondary">secondary</div>
-            <div class="primaryVariant">primaryVariant</div>
-            <v-icon />
+            <div>
+              <div v-for="color in colors" :class="['box', color]" :key="color">{{ color }}</div>
+            </div>
+            <div>
+              <div v-for="color in textColors" :class="['box', `${color}--text`]" :key="`${color}--text`">{{ color }}</div>
+            </div>
           </v-theme-provider>
         </v-theme-provider>
       </v-theme-provider>
@@ -40,9 +44,10 @@
     name: 'Playground',
     setup () {
       const theme = useTheme()
-      console.log(theme)
 
       return {
+        colors: ['surface', 'primary', 'primaryVariant', 'secondary', 'secondaryVariant', 'success', 'warning', 'error', 'info'],
+        textColors: ['text', 'primary', 'primaryVariant', 'second', 'secondaryVariant', 'success', 'warning', 'error', 'info'],
         theme,
         def: () => {
           const keys = Object.keys(theme.themes.value)
@@ -51,7 +56,7 @@
           theme.setCurrent(keys[newIndex])
         },
         change: () => theme.setTheme('light', {
-          ...theme.themes.light,
+          ...theme.themes.value.light,
           background: '#d3d3d3',
           primary: '#a52a2a',
           secondary: '#008000',
@@ -62,3 +67,11 @@
     },
   }
 </script>
+
+<style>
+  .box {
+    width: 150px;
+    height: 150px;
+    display: inline-block;
+  }
+</style>
