@@ -1,31 +1,18 @@
-// @ts-nocheck
-/* eslint-disable */
+import { defineComponent, h } from 'vue'
+import { useTheme } from '../../composables/theme'
+import './VThemeProvider.sass'
 
-// Mixins
-import Themeable from '../../mixins/themeable'
-
-// Types
-import { VNode } from 'vue'
-
-/* @vue/component */
-export default Themeable.extend({
-  name: 'v-theme-provider',
-
-  props: { root: Boolean },
-
-  computed: {
-    isDark (): boolean {
-      return this.root
-        ? this.rootIsDark
-        : Themeable.options.computed.isDark.call(this)
+export const VThemeProvider = defineComponent({
+  props: {
+    theme: {
+      type: String,
     },
   },
+  setup (props, { slots }) {
+    const { themeClass } = useTheme(props)
 
-  render (): VNode {
-    /* istanbul ignore next */
-    return (
-      this.$slots.default! &&
-      this.$slots.default!.find(node => !node.isComment && node.text !== ' ')!
-    )
+    return () => h('div', {
+      class: ['v-theme-provider', themeClass.value],
+    }, slots.default?.())
   },
 })

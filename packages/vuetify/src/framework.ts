@@ -1,4 +1,5 @@
 import { inject } from 'vue'
+import { VuetifyThemeSymbol, createTheme } from './composables'
 
 // Types
 import type { InjectionKey, App } from 'vue'
@@ -59,6 +60,53 @@ export const createVuetify = (options: VuetifyOptions = {}) => {
 
     app.provide(VuetifySymbol, vuetify)
     app.config.globalProperties.$vuetify = vuetify
+    app.provide(VuetifyThemeSymbol, createTheme({
+      defaultTheme: 'light',
+      themes: {
+        light: {
+          background: 'white',
+          error: 'red',
+          warning: 'yellow',
+          info: 'blue',
+          success: 'green',
+          primary: 'red',
+          primaryVariant: 'pink',
+          secondary: 'blue',
+          secondaryVariant: 'darkblue',
+          surface: 'white',
+          inverseText: '#ffffff',
+          text: '#000000',
+        },
+        dark: {
+          background: 'darkgrey',
+          error: 'red',
+          warning: 'yellow',
+          info: 'blue',
+          success: 'green',
+          primary: 'purple',
+          primaryVariant: 'darkgreen',
+          secondary: 'orange',
+          secondaryVariant: 'darkblue',
+          surface: 'white',
+          inverseText: '#ffffff',
+          text: '#000000',
+        },
+        contrast: {
+          background: '#000000',
+          surface: '000000',
+          primary: '#eeeeee',
+          primaryVariant: '#eeeeee',
+          secondary: '#ffff00',
+          secondaryVariant: '#ffff00',
+          text: '#ffffff',
+          inverseText: '#000000',
+          error: 'red',
+          warning: 'yellow',
+          info: 'blue',
+          success: 'green',
+        },
+      },
+    }))
   }
 
   return { install }

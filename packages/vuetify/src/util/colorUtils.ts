@@ -241,9 +241,9 @@ export function RGBtoInt (rgba: RGBA): ColorInt {
  * @param c1 First color
  * @param c2 Second color
  */
-export function contrastRatio (c1: RGBA, c2: RGBA): number {
-  const [, y1] = toXYZ(RGBtoInt(c1))
-  const [, y2] = toXYZ(RGBtoInt(c2))
+export function contrastRatio (c1: RGBA | ColorInt, c2: RGBA | ColorInt): number {
+  const [, y1] = toXYZ(typeof c1 === 'number' ? c1 : RGBtoInt(c1))
+  const [, y2] = toXYZ(typeof c2 === 'number' ? c2 : RGBtoInt(c2))
 
   return (Math.max(y1, y2) + 0.05) / (Math.min(y1, y2) + 0.05)
 }
