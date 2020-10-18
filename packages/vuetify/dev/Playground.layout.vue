@@ -1,14 +1,15 @@
 <template>
   <div>
     <v-layout :layout="layout" full-height>
-      <v-app-bar id="toolbar" v-model="bar">toolbar</v-app-bar>
+      <v-app-bar id="toolbar" v-model="bar" v-if="remove">toolbar</v-app-bar>
       <v-navigation-drawer id="drawer1" :width="96" v-model="show">nav</v-navigation-drawer>
       <v-navigation-drawer id="drawer2">nav</v-navigation-drawer>
       <v-content>
-        <button @click="bar = !bar">bar</button>
-        <button @click="show = !show">show</button>
+        <button @click="bar = !bar">toggle bar</button>
+        <button @click="show = !show">toggle nav</button>
+        <button @click="remove = !remove">remove bar</button>
         zxc
-        <v-layout :layout="['innerfoot', 'bar', 'foo']" :style="{ margin: '100px' }">
+        <v-layout :layout="['bar', 'innerfoot', 'foo']" :style="{ margin: '100px' }">
           <v-navigation-drawer id="bar" v-model="inner" temporary>inner drawer</v-navigation-drawer>
           <v-app-bar id="foo">inner bar</v-app-bar>
           <v-footer id="innerfoot">inner footer</v-footer>
@@ -44,7 +45,7 @@
 
       console.log(vuetify)
 
-      const channelHeader = ref(true)
+      const remove = ref(true)
       const show = ref(true)
       const inner = ref(true)
       const bar = ref(true)
@@ -62,7 +63,7 @@
       }
 
       return {
-        channelHeader,
+        remove,
         show,
         inner,
         bar,
