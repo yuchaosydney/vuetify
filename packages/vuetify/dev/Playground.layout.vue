@@ -2,13 +2,14 @@
   <div>
     <v-layout :layout="layout" full-height>
       <v-app-bar id="toolbar" v-model="bar">toolbar</v-app-bar>
-      <v-navigation-drawer id="drawer1" :width="width" v-model="show" temporary>nav</v-navigation-drawer>
+      <v-navigation-drawer id="drawer1" :width="96" v-model="show">nav</v-navigation-drawer>
+      <v-navigation-drawer id="drawer2">nav</v-navigation-drawer>
       <v-content>
         <button @click="bar = !bar">bar</button>
         <button @click="show = !show">show</button>
         zxc
         <v-layout :layout="['innerfoot', 'bar', 'foo']" :style="{ margin: '100px' }">
-          <v-navigation-drawer id="bar" v-model="inner">inner drawer</v-navigation-drawer>
+          <v-navigation-drawer id="bar" v-model="inner" temporary>inner drawer</v-navigation-drawer>
           <v-app-bar id="foo">inner bar</v-app-bar>
           <v-footer id="innerfoot">inner footer</v-footer>
           <v-content>
@@ -48,13 +49,12 @@
       const inner = ref(true)
       const bar = ref(true)
       const appBarHeight = ref(24)
-      const width = ref(300)
       const z = ref(1)
       // const layout = ref(['nav-drawer', 'system-bar', 'nav-drawer-right', 'footer:nav-drawer'])
       // const layout = ref(['footer', 'nav-drawer', 'system-bar', 'nav-drawer-right:footer'])
       // const layout = ref(['toolbar', 'drawer2', 'drawer1'])
       // const layout = ref(['drawer2', 'drawer1', 'toolbar'])
-      const layout = ref(['drawer1', 'toolbar'])
+      const layout = ref(['drawer1', 'drawer2', 'toolbar'])
       const toggle = () => {
         console.log('foo')
         layout.value = layout.value.slice().reverse()
@@ -70,7 +70,6 @@
         z,
         layout,
         toggle,
-        width,
       }
     },
   }
