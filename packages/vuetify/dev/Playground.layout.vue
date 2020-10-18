@@ -1,9 +1,10 @@
 <template>
   <div>
     <v-layout :layout="layout" full-height>
-      <v-app-bar id="toolbar">toolbar</v-app-bar>
+      <v-app-bar id="toolbar" v-model="bar">toolbar</v-app-bar>
       <v-navigation-drawer id="drawer1" :width="width" v-model="show" right>nav</v-navigation-drawer>
       <v-content>
+        <button @click="bar = !bar">bar</button>
         <button @click="show = !show">show</button>
         zxc
         <v-layout :layout="['innerfoot', 'bar', 'foo']" :style="{ margin: '100px' }">
@@ -45,7 +46,7 @@
       const channelHeader = ref(true)
       const show = ref(true)
       const inner = ref(true)
-      const channels = ref(true)
+      const bar = ref(true)
       const appBarHeight = ref(24)
       const width = ref(300)
       const z = ref(1)
@@ -64,7 +65,7 @@
         channelHeader,
         show,
         inner,
-        channels,
+        bar,
         appBarHeight,
         z,
         layout,

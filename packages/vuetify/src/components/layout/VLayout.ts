@@ -68,7 +68,10 @@ export const createLayout = (history: Ref<string[]>) => {
     return generateLayers(history.value, entries.value)
   })
 
-  const padding = computed(() => layers.value[layers.value.length - 1].layer)
+  const padding = computed(() => {
+    const layer = layers.value[layers.value.length - 1].layer
+    return `${layer.top}px ${layer.right}px ${layer.bottom}px ${layer.left}px`
+  })
 
   provide(VuetifyLayoutKey, {
     register: (position: LayoutValue['position'], id: string, amount: Ref<number>) => {
