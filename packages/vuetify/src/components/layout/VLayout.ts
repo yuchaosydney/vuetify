@@ -1,25 +1,23 @@
-import { defineComponent, h, InjectionKey, inject, provide, computed, Ref, ref, Prop, onBeforeUnmount, watch } from 'vue'
+import { defineComponent, h, InjectionKey, inject, provide, computed, Ref, ref, Prop, onBeforeUnmount } from 'vue'
 
 export const VuetifyLayoutKey: InjectionKey<any> = Symbol.for('vuetify-layout')
 
-export const useLayout = (props: { id?: string, height?: number, width?: number }, position: 'top' | 'bottom' | 'left' | 'right') => {
+export const useLayout = (id: string, amount: Ref<number>, position: 'top' | 'bottom' | 'left' | 'right') => {
   const layout = inject(VuetifyLayoutKey)
 
   if (!layout) throw new Error('No layout!')
 
-  const size = computed(() => position === 'top' || position === 'bottom' ? props.height : props.width)
-  const layer = layout.register(position, props.id, size.value)
+  const styles = layout.register(position, id, amount)
 
-  watch(size, v => layout.update(props.id, v))
-  onBeforeUnmount(() => layout.unregister(props.id))
+  onBeforeUnmount(() => layout.unregister(id))
 
-  return { layer, update: (v: number) => layout.update(props.id, v) }
+  return styles
 }
 
 interface LayoutValue {
   id: string
   position: 'top' | 'left' | 'right' | 'bottom'
-  value: number
+  amount: number
 }
 
 const generateLayers = (history: string[], values: Map<string, LayoutValue>) => {
@@ -32,7 +30,7 @@ const generateLayers = (history: string[], values: Map<string, LayoutValue>) => 
 
     const layer = {
       ...previousLayer,
-      [layout.position]: previousLayer[layout.position] + layout.value,
+      [layout.position]: previousLayer[layout.position] + layout.amount,
     }
 
     layers.push({
@@ -59,8 +57,8 @@ export const createLayout = (history: Ref<string[]>) => {
 
       if (!topLayout || !bottomLayout) continue
 
-      map.set(bottomLayout.id, { id: bottomLayout.id, position: topLayout.position, value: topLayout.value })
-      map.set(topLayout.id, { id: topLayout.id, position: bottomLayout.position, value: -bottomLayout.value })
+      map.set(bottomLayout.id, { id: bottomLayout.id, position: topLayout.position, amount: topLayout.amount })
+      map.set(topLayout.id, { id: topLayout.id, position: bottomLayout.position, amount: -bottomLayout.amount })
     }
 
     return map
@@ -73,26 +71,32 @@ export const createLayout = (history: Ref<string[]>) => {
   const padding = computed(() => layers.value[layers.value.length - 1].layer)
 
   provide(VuetifyLayoutKey, {
-    register: (position: LayoutValue['position'], id: string, value: number, zOrder: number) => {
-      entries.value.set(id, { id, position, value })
+    register: (position: LayoutValue['position'], id: string, amount: Ref<number>) => {
+      entries.value.set(id, { id, position, amount: amount as any as number })
 
       return computed(() => {
         const index = layers.value.findIndex(l => l.id === id)
-        const layer = layers.value[index - 1]
+        const item = layers.value[index - 1]
 
         const overlap = overlaps.value.get(id)
         if (overlap) {
           console.log('found overlap')
-          layer.layer[overlap.position] += overlap.value
+          item.layer[overlap.position] += overlap.amount
         }
 
-        return layer
+        const isHorizontal = position === 'left' || position === 'right'
+        const isOpposite = position === 'right'
+
+        return {
+          width: !isHorizontal ? `calc(100% - ${item.layer.left}px - ${item.layer.right}px)` : `${entries.value.get(id)?.amount}px`,
+          height: isHorizontal ? `calc(100% - ${item.layer.top}px - ${item.layer.bottom}px)` : `${entries.value.get(id)?.amount}px`,
+          marginLeft: isOpposite ? undefined : `${item.layer.left}px`,
+          marginRight: isOpposite ? `${item.layer.right}px` : undefined,
+          marginTop: `${item.layer.top}px`,
+          marginBottom: `${item.layer.bottom}px`,
+          zIndex: item.zIndex,
+        }
       })
-    },
-    update: (id: string, value: number) => {
-      const curr = entries.value.get(id)
-      if (!curr) return
-      entries.value.set(id, { ...curr, value })
     },
     unregister: (id: string) => {
       entries.value.delete(id)

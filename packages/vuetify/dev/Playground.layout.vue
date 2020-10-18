@@ -2,13 +2,14 @@
   <div>
     <v-layout :layout="layout" full-height>
       <v-app-bar id="toolbar">toolbar</v-app-bar>
-      <v-navigation-drawer id="drawer1" :width="width" v-model="show">nav</v-navigation-drawer>
+      <v-navigation-drawer id="drawer1" :width="width" v-model="show" right>nav</v-navigation-drawer>
       <v-content>
         <button @click="show = !show">show</button>
         zxc
-        <v-layout :layout="['bar', 'foo']" :style="{ margin: '100px' }">
+        <v-layout :layout="['innerfoot', 'bar', 'foo']" :style="{ margin: '100px' }">
           <v-navigation-drawer id="bar" v-model="inner">inner drawer</v-navigation-drawer>
           <v-app-bar id="foo">inner bar</v-app-bar>
+          <v-footer id="innerfoot">inner footer</v-footer>
           <v-content>
             asdasdzxczxc
             <button @click="inner = !inner">inner</button>
