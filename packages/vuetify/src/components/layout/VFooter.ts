@@ -5,7 +5,6 @@ import { useLayout } from './VLayout'
 export const VFooter = defineComponent({
   name: 'VFooter',
   props: {
-    zOrder: Number,
     height: {
       type: Number,
       default: 48,
@@ -13,21 +12,22 @@ export const VFooter = defineComponent({
     id: String,
   },
   setup (props, { slots }) {
-    const values = useLayout(props, 'bottom')
+    const { layer } = useLayout(props, 'bottom')
     const background = randomHexColor()
 
     return () => h('div', {
       style: {
-        position: 'fixed',
-        width: `calc(100% - ${values.value.left}px - ${values.value.right}px)`,
+        position: 'absolute',
+        width: `calc(100% - ${layer.value.left}px - ${layer.value.right}px)`,
         height: `${props.height}px`,
         background,
         bottom: 0,
-        marginBottom: `${values.value.bottom}px`,
-        marginLeft: `${values.value.left}px`,
-        marginRight: `${values.value.right}px`,
-        transition: 'all 1s linear',
+        marginBottom: `${layer.value.bottom}px`,
+        marginLeft: `${layer.value.left}px`,
+        marginRight: `${layer.value.right}px`,
+        transition: 'all 0.3s ease-in-out',
+        zIndex: layer.value.zIndex,
       },
-    }, slots.default!())
+    }, slots.default?.())
   },
 })

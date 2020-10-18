@@ -6,12 +6,14 @@ export const useLayout = (props: { id?: string, height?: number, width?: number 
   const layout = inject(VuetifyLayoutKey)
 
   if (!layout) throw new Error('No layout!')
+
   const size = computed(() => position === 'top' || position === 'bottom' ? props.height : props.width)
-  const values = layout.register(position, props.id, size.value)
+  const layer = layout.register(position, props.id, size.value)
+
   watch(size, v => layout.update(props.id, v))
   onBeforeUnmount(() => layout.unregister(props.id))
 
-  return values
+  return { layer, update: (v: number) => layout.update(props.id, v) }
 }
 
 interface LayoutValue {
@@ -20,25 +22,33 @@ interface LayoutValue {
   value: number
 }
 
-export const createLayout = (history: Ref<string[]>) => {
-  const entries = ref(new Map<string, LayoutValue>())
+const generateLayers = (history: string[], values: Map<string, LayoutValue>) => {
+  let previousLayer = { top: 0, left: 0, right: 0, bottom: 0 }
+  const layers = [{ id: '', zIndex: 0, layer: { ...previousLayer } }]
+  for (const [i, h] of history.entries()) {
+    const [id] = h.split(':')
+    const layout = values.get(id)
+    if (!layout) continue
 
-  const getValues = (history: string[], values: Map<string, LayoutValue>, lastId?: string) => {
-    let obj = { top: 0, left: 0, right: 0, bottom: 0 }
-    const arr = lastId ? history.slice(0, history.indexOf(lastId)) : history
-    for (const h of arr) {
-      const [id] = h.split(':')
-      const layout = values.get(id)
-      if (!layout) continue
-
-      obj = {
-        ...obj,
-        [layout.position]: obj[layout.position] + layout.value,
-      }
+    const layer = {
+      ...previousLayer,
+      [layout.position]: previousLayer[layout.position] + layout.value,
     }
 
-    return obj
+    layers.push({
+      id,
+      zIndex: history.length - i,
+      layer,
+    })
+
+    previousLayer = layer
   }
+
+  return layers
+}
+
+export const createLayout = (history: Ref<string[]>) => {
+  const entries = ref(new Map<string, LayoutValue>())
 
   const overlaps = computed(() => {
     const map = new Map<string, LayoutValue>()
@@ -56,24 +66,27 @@ export const createLayout = (history: Ref<string[]>) => {
     return map
   })
 
-  const computedValues = computed(() => {
-    return getValues(history.value, entries.value)
+  const layers = computed(() => {
+    return generateLayers(history.value, entries.value)
   })
+
+  const padding = computed(() => layers.value[layers.value.length - 1].layer)
 
   provide(VuetifyLayoutKey, {
     register: (position: LayoutValue['position'], id: string, value: number, zOrder: number) => {
       entries.value.set(id, { id, position, value })
 
       return computed(() => {
-        const values = getValues(history.value, entries.value, id)
+        const index = layers.value.findIndex(l => l.id === id)
+        const layer = layers.value[index - 1]
 
         const overlap = overlaps.value.get(id)
         if (overlap) {
           console.log('found overlap')
-          values[overlap.position] += overlap.value
+          layer.layer[overlap.position] += overlap.value
         }
 
-        return values
+        return layer
       })
     },
     update: (id: string, value: number) => {
@@ -84,7 +97,7 @@ export const createLayout = (history: Ref<string[]>) => {
     unregister: (id: string) => {
       entries.value.delete(id)
     },
-    values: computedValues,
+    padding,
   })
 }
 
@@ -92,16 +105,19 @@ export const VLayout = defineComponent({
   name: 'VLayout',
   props: {
     layout: Array as Prop<string[]>,
+    fullHeight: Boolean,
   },
   setup (props, { slots }) {
     const layout = computed(() => props.layout || [])
     createLayout(layout)
     return () => h('div', {
       style: {
+        position: 'relative',
         display: 'flex',
         flex: '1 1 auto',
-        minHeight: '100vh',
+        height: props.fullHeight ? '100vh' : undefined,
+        overflow: 'hidden',
       },
-    }, slots.default!())
+    }, slots.default?.())
   },
 })

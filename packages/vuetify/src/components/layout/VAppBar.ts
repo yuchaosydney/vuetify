@@ -5,7 +5,6 @@ import { useLayout } from './VLayout'
 export const VAppBar = defineComponent({
   name: 'VAppBar',
   props: {
-    zOrder: Number,
     height: {
       type: Number,
       default: 48,
@@ -13,21 +12,22 @@ export const VAppBar = defineComponent({
     id: String,
   },
   setup (props, { slots }) {
-    const values = useLayout(props, 'top')
+    const { layer } = useLayout(props, 'top')
 
     const background = randomHexColor()
 
     return () => h('div', {
       style: {
-        position: 'fixed',
+        position: 'absolute',
         background,
         height: `${props.height}px`,
-        width: `calc(100% - ${values.value.left}px - ${values.value.right}px)`,
-        marginTop: `${values.value.top}px`,
-        marginLeft: `${values.value.left}px`,
-        marginRight: `${values.value.right}px`,
-        transition: 'all 1s linear',
+        width: `calc(100% - ${layer.value.layer.left}px - ${layer.value.layer.right}px)`,
+        marginTop: `${layer.value.layer.top}px`,
+        marginLeft: `${layer.value.layer.left}px`,
+        marginRight: `${layer.value.layer.right}px`,
+        transition: 'all 0.3s ease-in-out',
+        zIndex: layer.value.zIndex,
       },
-    }, slots.default!())
+    }, slots.default?.())
   },
 })
