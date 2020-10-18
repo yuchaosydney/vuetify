@@ -110,7 +110,10 @@ export const createLayout = (history: Ref<string[]>) => {
 export const VLayout = defineComponent({
   name: 'VLayout',
   props: {
-    layout: Array as Prop<string[]>,
+    layout: {
+      type: Array,
+      required: true,
+    } as Prop<string[]>,
     fullHeight: Boolean,
   },
   setup (props, { slots }) {
