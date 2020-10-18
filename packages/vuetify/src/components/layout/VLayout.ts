@@ -22,8 +22,8 @@ interface LayoutValue {
 
 const generateLayers = (history: string[], values: Map<string, LayoutValue>) => {
   let previousLayer = { top: 0, left: 0, right: 0, bottom: 0 }
-  const layers = [{ id: '', zIndex: 0, layer: { ...previousLayer } }]
-  for (const [i, h] of history.entries()) {
+  const layers = [{ id: '', layer: { ...previousLayer } }]
+  for (const h of history) {
     const [id] = h.split(':')
     const layout = values.get(id)
     if (!layout) continue
@@ -35,7 +35,6 @@ const generateLayers = (history: string[], values: Map<string, LayoutValue>) => 
 
     layers.push({
       id,
-      zIndex: history.length - i,
       layer,
     })
 
@@ -97,7 +96,7 @@ export const createLayout = (history: Ref<string[]>) => {
           marginRight: isOpposite ? `${item.layer.right}px` : undefined,
           marginTop: `${item.layer.top}px`,
           marginBottom: `${item.layer.bottom}px`,
-          zIndex: item.zIndex,
+          zIndex: layers.value.length - index,
         }
       })
     },
@@ -124,6 +123,7 @@ export const VLayout = defineComponent({
         flex: '1 1 auto',
         height: props.fullHeight ? '100vh' : undefined,
         overflow: 'hidden',
+        zIndex: 0,
       },
     }, slots.default?.())
   },

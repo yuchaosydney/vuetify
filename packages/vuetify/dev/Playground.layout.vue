@@ -2,7 +2,7 @@
   <div>
     <v-layout :layout="layout" full-height>
       <v-app-bar id="toolbar" v-model="bar">toolbar</v-app-bar>
-      <v-navigation-drawer id="drawer1" :width="width" v-model="show" right>nav</v-navigation-drawer>
+      <v-navigation-drawer id="drawer1" :width="width" v-model="show" temporary>nav</v-navigation-drawer>
       <v-content>
         <button @click="bar = !bar">bar</button>
         <button @click="show = !show">show</button>

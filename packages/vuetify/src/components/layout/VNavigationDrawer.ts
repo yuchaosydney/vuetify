@@ -18,9 +18,10 @@ export const VNavigationDrawer = defineComponent({
       type: String,
       required: true,
     },
+    temporary: Boolean,
   },
   setup (props, { slots }) {
-    const width = computed(() => props.modelValue ? props.width : 0)
+    const width = computed(() => props.temporary ? 0 : props.modelValue ? props.width : 0)
     const styles = useLayout(props.id, width, props.right ? 'right' : 'left')
     const background = randomHexColor()
 
