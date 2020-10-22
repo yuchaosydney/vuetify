@@ -14,23 +14,25 @@ export const useLayout = (id: string, amount: Ref<number>, position: 'top' | 'bo
   return styles
 }
 
+type Position = 'top' | 'left' | 'right' | 'bottom'
+
 interface LayoutValue {
   id: string
-  position: 'top' | 'left' | 'right' | 'bottom'
-  amount: number
+  position: Position
+  // amount: number
 }
 
-const generateLayers = (history: string[], values: Map<string, LayoutValue>) => {
+const generateLayers = (layout: string[], registered: string[], positions: Map<string, Position>, amounts: Map<string, Ref<number>>) => {
   let previousLayer = { top: 0, left: 0, right: 0, bottom: 0 }
   const layers = [{ id: '', layer: { ...previousLayer } }]
-  for (const h of history) {
-    const [id] = h.split(':')
-    const layout = values.get(id)
-    if (!layout) continue
+  for (const id of layout.map(l => l.split(':')[0]).filter(l => registered.includes(l))) {
+    const position = positions.get(id)
+    const amount = amounts.get(id)
+    if (!position || !amount) continue
 
     const layer = {
       ...previousLayer,
-      [layout.position]: previousLayer[layout.position] + layout.amount,
+      [position]: previousLayer[position] + amount.value,
     }
 
     layers.push({
@@ -44,27 +46,32 @@ const generateLayers = (history: string[], values: Map<string, LayoutValue>) => 
   return layers
 }
 
-export const createLayout = (history: Ref<string[]>) => {
-  const entries = ref(new Map<string, LayoutValue>())
+export const createLayout = (layout: Ref<string[]>) => {
+  // const entries = ref(new Map<string, LayoutValue>())
+  const registered = ref<string[]>([])
+  const positions = new Map<string, Position>()
+  const amounts = new Map<string, Ref<number>>()
 
   const overlaps = computed(() => {
-    const map = new Map<string, LayoutValue>()
-    for (const h of history.value.filter(item => item.indexOf(':') >= 0)) {
+    const map = new Map<string, { position: Position, amount: number }>()
+    for (const h of layout.value.filter(item => item.indexOf(':') >= 0)) {
       const [top, bottom] = h.split(':')
-      const topLayout = entries.value.get(top)
-      const bottomLayout = entries.value.get(bottom)
+      const topPosition = positions.get(top)
+      const bottomPosition = positions.get(bottom)
+      const topAmount = amounts.get(top)
+      const bottomAmount = amounts.get(bottom)
 
-      if (!topLayout || !bottomLayout) continue
+      if (!topPosition || !bottomPosition || !topAmount || !bottomAmount) continue
 
-      map.set(bottomLayout.id, { id: bottomLayout.id, position: topLayout.position, amount: topLayout.amount })
-      map.set(topLayout.id, { id: topLayout.id, position: bottomLayout.position, amount: -bottomLayout.amount })
+      map.set(bottom, { position: topPosition, amount: topAmount.value })
+      map.set(top, { position: bottomPosition, amount: -bottomAmount.value })
     }
 
     return map
   })
 
   const layers = computed(() => {
-    return generateLayers(history.value, entries.value)
+    return generateLayers(layout.value, registered.value, positions, amounts)
   })
 
   const padding = computed(() => {
@@ -74,11 +81,15 @@ export const createLayout = (history: Ref<string[]>) => {
 
   provide(VuetifyLayoutKey, {
     register: (position: LayoutValue['position'], id: string, amount: Ref<number>) => {
-      entries.value.set(id, { id, position, amount: amount as any as number })
+      positions.set(id, position)
+      amounts.set(id, amount)
+      registered.value.push(id)
 
       return computed(() => {
         const index = layers.value.findIndex(l => l.id === id)
         const item = layers.value[index - 1]
+
+        console.log(id, index, item, layers.value)
 
         const overlap = overlaps.value.get(id)
         if (overlap) {
@@ -89,9 +100,11 @@ export const createLayout = (history: Ref<string[]>) => {
         const isHorizontal = position === 'left' || position === 'right'
         const isOpposite = position === 'right'
 
+        const amount = amounts.get(id)
+
         return {
-          width: !isHorizontal ? `calc(100% - ${item.layer.left}px - ${item.layer.right}px)` : `${entries.value.get(id)?.amount}px`,
-          height: isHorizontal ? `calc(100% - ${item.layer.top}px - ${item.layer.bottom}px)` : `${entries.value.get(id)?.amount}px`,
+          width: !isHorizontal ? `calc(100% - ${item.layer.left}px - ${item.layer.right}px)` : `${amount?.value || 0}px`,
+          height: isHorizontal ? `calc(100% - ${item.layer.top}px - ${item.layer.bottom}px)` : `${amount?.value || 0}px`,
           marginLeft: isOpposite ? undefined : `${item.layer.left}px`,
           marginRight: isOpposite ? `${item.layer.right}px` : undefined,
           marginTop: `${item.layer.top}px`,
@@ -101,7 +114,9 @@ export const createLayout = (history: Ref<string[]>) => {
       })
     },
     unregister: (id: string) => {
-      entries.value.delete(id)
+      positions.delete(id)
+      amounts.delete(id)
+      registered.value = registered.value.filter(v => v !== id)
     },
     padding,
   })

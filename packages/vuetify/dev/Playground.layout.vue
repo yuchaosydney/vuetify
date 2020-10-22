@@ -2,14 +2,14 @@
   <div>
     <v-layout :layout="layout" full-height>
       <v-app-bar id="toolbar" v-model="bar" v-if="remove">toolbar</v-app-bar>
-      <v-navigation-drawer id="drawer1" :width="96" v-model="show">nav</v-navigation-drawer>
-      <v-navigation-drawer id="drawer2">nav</v-navigation-drawer>
+      <v-navigation-drawer id="drawer1" :width="width" v-model="show">nav</v-navigation-drawer>
+      <!-- <v-navigation-drawer id="drawer2">nav</v-navigation-drawer> -->
       <v-content>
         <button @click="bar = !bar">toggle bar</button>
         <button @click="show = !show">toggle nav</button>
         <button @click="remove = !remove">remove bar</button>
         zxc
-        <v-layout :layout="['bar', 'innerfoot', 'foo']" :style="{ margin: '100px' }">
+        <!-- <v-layout :layout="['bar', 'innerfoot', 'foo']" :style="{ margin: '100px' }">
           <v-navigation-drawer id="bar" v-model="inner" temporary>inner drawer</v-navigation-drawer>
           <v-app-bar id="foo">inner bar</v-app-bar>
           <v-footer id="innerfoot">inner footer</v-footer>
@@ -17,7 +17,7 @@
             asdasdzxczxc
             <button @click="inner = !inner">inner</button>
           </v-content>
-        </v-layout>
+        </v-layout> -->
       </v-content>
     </v-layout>
     <!-- <v-layout :layout="['system-bar', 'servers', 'channels', 'channel-header', 'info', 'input']">
@@ -50,7 +50,7 @@
       const inner = ref(true)
       const bar = ref(true)
       const appBarHeight = ref(24)
-      const z = ref(1)
+      const width = ref(300)
       // const layout = ref(['nav-drawer', 'system-bar', 'nav-drawer-right', 'footer:nav-drawer'])
       // const layout = ref(['footer', 'nav-drawer', 'system-bar', 'nav-drawer-right:footer'])
       // const layout = ref(['toolbar', 'drawer2', 'drawer1'])
@@ -62,13 +62,17 @@
         console.log(layout.value)
       }
 
+      setTimeout(() => {
+        width.value = 200
+      }, 2000)
+
       return {
         remove,
         show,
         inner,
         bar,
         appBarHeight,
-        z,
+        width,
         layout,
         toggle,
       }
