@@ -89,11 +89,8 @@ export const createLayout = (layout: Ref<string[]>) => {
         const index = layers.value.findIndex(l => l.id === id)
         const item = layers.value[index - 1]
 
-        console.log(id, index, item, layers.value)
-
         const overlap = overlaps.value.get(id)
         if (overlap) {
-          console.log('found overlap')
           item.layer[overlap.position] += overlap.amount
         }
 
