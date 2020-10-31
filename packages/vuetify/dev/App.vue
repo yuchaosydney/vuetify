@@ -5,7 +5,7 @@
 </template>
 
 <script>
-  import Playground from './Playground'
+  import Playground from './Playground.theme'
   export default {
     name: 'App',
     components: {

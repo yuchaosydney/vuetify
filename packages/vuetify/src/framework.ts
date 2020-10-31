@@ -62,50 +62,6 @@ export const createVuetify = (options: VuetifyOptions = {}) => {
     app.config.globalProperties.$vuetify = vuetify
     app.provide(VuetifyThemeSymbol, createTheme({
       defaultTheme: 'light',
-      themes: {
-        light: {
-          background: '#ffffff',
-          error: '#ff0000',
-          warning: '#ffff00',
-          info: '#0000ff',
-          success: '#00ff00',
-          primary: '#ff0000',
-          primaryVariant: '#ff00ff',
-          secondary: '#0000ff',
-          secondaryVariant: '#4444ff',
-          surface: '#ffffff',
-          inverseText: '#ffffff',
-          text: '#000000',
-        },
-        dark: {
-          background: '#222222',
-          error: '#ff0000',
-          warning: '#ffff00',
-          info: '#0000ff',
-          success: '#00ff00',
-          primary: '#ff00ff',
-          primaryVariant: '#33ff33',
-          secondary: '#555500',
-          secondaryVariant: '#4444ff',
-          surface: '#ffffff',
-          inverseText: '#000000',
-          text: '#ffffff',
-        },
-        contrast: {
-          background: '#000000',
-          surface: '#000000',
-          primary: '#eeeeee',
-          primaryVariant: '#eeeeee',
-          secondary: '#ffff00',
-          secondaryVariant: '#ffff00',
-          text: '#ffffff',
-          inverseText: '#000000',
-          error: '#ff0000',
-          warning: '#ffff00',
-          info: '#0000ff',
-          success: '#00ff00',
-        },
-      },
     }))
   }
 

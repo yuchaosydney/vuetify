@@ -247,3 +247,12 @@ export function contrastRatio (c1: RGBA | ColorInt, c2: RGBA | ColorInt): number
 
   return (Math.max(y1, y2) + 0.05) / (Math.min(y1, y2) + 0.05)
 }
+
+export function colorToRGB (color: string) {
+  const int = colorToInt(color)
+  return {
+    r: (int & 0xFF0000) >> 16,
+    g: (int & 0xFF00) >> 8,
+    b: (int & 0xFF),
+  }
+}
