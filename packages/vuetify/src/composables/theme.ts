@@ -1,5 +1,6 @@
 // Utilities
 import { capitalize, computed, inject, provide, ref, watch } from 'vue'
+import { useVuetify } from '@/framework'
 import { colorToInt, colorToRGB, contrastRatio } from '../util'
 
 // Types
@@ -31,76 +32,96 @@ interface OnColors {
   onInfo: string
 }
 
-interface VuetifyTheme extends BaseColors, OnColors {
+interface InternalTheme extends BaseColors, OnColors {
   [key: string]: string
 }
 
-interface VuetifyThemeOption extends BaseColors, Partial<OnColors> {
+interface ThemeOption extends BaseColors, Partial<OnColors> {
   [key: string]: string | undefined
 }
 
 interface ThemeOptions {
   defaultTheme?: string
-  themes?: Record<string, VuetifyThemeOption>
+  themes?: Record<string, ThemeOption>
 }
 
-interface Theme {
+export interface ThemeInstance {
+  themes: Ref<Record<string, InternalTheme>>
+  defaultTheme: Ref<string>
+  setTheme: (key: string, theme: ThemeOption) => void
+}
+
+interface ThemeProvide {
+  themeClass: Ref<string>
   current: Ref<string>
-  themes: Ref<Record<string, VuetifyTheme>>
-  setTheme: (key: string, theme: VuetifyThemeOption) => void
+  next: () => void
+  prev: () => void
+  setTheme: (key: string, theme: ThemeOption) => void
 }
 
-export const VuetifyThemeSymbol: InjectionKey<Theme> = Symbol.for('vuetify-theme')
+export const VuetifyThemeSymbol: InjectionKey<ThemeProvide> = Symbol.for('vuetify-theme')
 
-export const useTheme = (props: any = {}) => {
-  const themeProvide = inject(VuetifyThemeSymbol)
+const step = <T>(arr: T[], current: T, steps: number): T => arr[(arr.indexOf(current) + arr.length + steps) % arr.length]
 
-  if (!themeProvide) throw new Error('Could not find vuetify theme provider')
+export const provideTheme = (props: { theme?: string } = {}): ThemeProvide => {
+  const vuetify = useVuetify()
+  const themeProvide = inject(VuetifyThemeSymbol, null)
 
-  const current = computed(() => props.theme || themeProvide.current.value)
+  const current = ref<string>(props.theme ?? themeProvide?.current.value ?? vuetify.theme.defaultTheme.value)
   const themeClass = computed(() => `theme--${current.value}`)
 
-  const setCurrent = (name: string) => themeProvide.current.value = name
+  watch(() => props.theme, theme => theme && (current.value = theme))
 
-  provide(VuetifyThemeSymbol, {
-    current,
-    themes: themeProvide.themes,
-    setTheme: themeProvide.setTheme,
-  })
+  const next = () => current.value = step(Object.keys(vuetify.theme.themes.value), current.value, 1)
+  const prev = () => current.value = step(Object.keys(vuetify.theme.themes.value), current.value, -1)
 
-  return {
+  const newThemeProvide: ThemeProvide = {
     themeClass,
     current,
-    setCurrent,
-    themes: themeProvide.themes,
-    setTheme: themeProvide.setTheme,
+    next,
+    prev,
+    setTheme: vuetify.theme.setTheme,
   }
+
+  provide(VuetifyThemeSymbol, newThemeProvide)
+
+  return newThemeProvide
 }
 
-const defaultThemes: Record<string, VuetifyThemeOption> = {
+export const useTheme = () => {
+  const theme = inject(VuetifyThemeSymbol)
+
+  if (!theme) throw new Error('Could not find vuetify theme provider')
+
+  return theme
+}
+
+const defaultThemes: Record<string, ThemeOption> = {
   light: {
-    background: '#ffffff',
+    background: '#eeeeee',
     surface: '#aaaaaa',
-    primary: '#ff0000',
-    primaryVariant: '#ff00ff',
-    secondary: '#0000ff',
-    secondaryVariant: '#4444ff',
-    success: '#00ff00',
-    warning: '#ffff00',
-    error: '#ff0000',
-    info: '#3333ee',
+    primary: '#1976D2',
+    primaryVariant: '#83acd4',
+    secondary: '#424242',
+    secondaryVariant: '#8c8c8c',
+    accent: '#82B1FF',
+    error: '#FF5252',
+    info: '#2196F3',
+    success: '#4CAF50',
+    warning: '#FB8C00',
   },
   dark: {
-    background: '#222222',
-    surface: '#ffffff',
-    primary: '#ff00ff',
+    background: '#555555',
+    surface: '#333333',
+    primary: '#2196F3',
     primaryVariant: '#33ff33',
-    secondary: '#555500',
+    secondary: '#424242',
     secondaryVariant: '#1155ff',
-    success: '#00ff00',
-    warning: '#ffff00',
-    error: '#ff0000',
-    info: '#0000ff',
+    accent: '#FF4081',
+    error: '#FF5252',
+    info: '#2196F3',
+    success: '#4CAF50',
+    warning: '#FB8C00',
   },
   contrast: {
     background: '#000000',
@@ -116,14 +137,15 @@ const defaultThemes: Record<string, VuetifyThemeOption> = {
   },
 }
 
-export const createTheme = (options?: ThemeOptions): Theme => {
+export const createTheme = (options?: ThemeOptions): ThemeInstance => {
   const styleEl = ref<HTMLStyleElement | undefined>()
-  const current = ref<string>(options?.defaultTheme ?? 'light')
-  const themes = ref<Record<string, VuetifyThemeOption>>(options?.themes ?? defaultThemes)
+  const defaultTheme = ref<string>(options?.defaultTheme ?? 'light')
+  const themes = ref<Record<string, ThemeOption>>(options?.themes ?? defaultThemes)
+
+  const toHex = (v: number) => `#${v.toString(16).repeat(3)}`
 
   const genOnColor = (color: string) => {
     // naive solution
-    const toHex = (v: number) => `#${v.toString(16).repeat(3)}`
     const int = colorToInt(color)
     const goal = 8
     let curr = 0
@@ -156,11 +178,11 @@ export const createTheme = (options?: ThemeOptions): Theme => {
         ...themes.value[key],
       }
       return obj
-    }, {} as Record<string, VuetifyTheme>)
+    }, {} as Record<string, InternalTheme>)
   })
 
-  const genCssVariables = (name?: string) => {
-    const theme = computedThemes.value[name ?? current.value]
+  const genCssVariables = (name: string) => {
+    const theme = computedThemes.value[name]
 
     if (!theme) throw new Error(`Could not find theme ${name}`)
 
@@ -202,8 +224,8 @@ export const createTheme = (options?: ThemeOptions): Theme => {
   watch(themes, updateStyles, { deep: true, immediate: true })
 
   return {
-    current,
     themes: computedThemes,
-    setTheme: (key: string, theme: VuetifyThemeOption) => themes.value[key] = theme,
+    defaultTheme,
+    setTheme: (key: string, theme: ThemeOption) => themes.value[key] = theme,
   }
 }

@@ -1,5 +1,5 @@
 import { defineComponent, h } from 'vue'
-import { useTheme } from '../../composables/theme'
+import { provideTheme } from '../../composables/theme'
 import './VThemeProvider.sass'
 
 export const VThemeProvider = defineComponent({
@@ -9,10 +9,10 @@ export const VThemeProvider = defineComponent({
     },
   },
   setup (props, { slots }) {
-    const { themeClass, current } = useTheme(props)
+    const { themeClass } = provideTheme(props)
 
     return () => h('div', {
       class: ['v-theme-provider', themeClass.value],
-    }, [h('div', [`providing ${current.value} theme`]), slots.default?.()])
+    }, [h('div', [slots.default?.()])])
   },
 })
