@@ -1,7 +1,9 @@
-import { inject } from 'vue'
+import { inject, reactive } from 'vue'
+import mdi from './services/icons/presets/mdi'
 
 // Types
 import type { InjectionKey, App } from 'vue'
+import type { VuetifyIcons } from './composables/icons'
 
 export interface VuetifyComponentDefaults {
   [key: string]: Record<string, unknown>
@@ -10,12 +12,14 @@ export interface VuetifyComponentDefaults {
 
 export interface VuetifyInstance {
   defaults: VuetifyComponentDefaults
+  icons: VuetifyIcons
 }
 
 export interface VuetifyOptions {
   components?: Record<string, any>
   directives?: Record<string, any>
   defaults?: Partial<VuetifyComponentDefaults>
+  icons?: Partial<VuetifyIcons>
 }
 
 export const VuetifySymbol: InjectionKey<VuetifyInstance> = Symbol.for('vuetify')
@@ -36,6 +40,7 @@ export const createVuetify = (options: VuetifyOptions = {}) => {
       components = {},
       directives = {},
       defaults = {},
+      icons = {},
     } = options
 
     for (const key in directives) {
@@ -55,6 +60,10 @@ export const createVuetify = (options: VuetifyOptions = {}) => {
         global: {},
         ...defaults,
       },
+      icons: reactive({
+        ...mdi,
+        ...icons as VuetifyIcons,
+      }),
     }
 
     app.provide(VuetifySymbol, vuetify)

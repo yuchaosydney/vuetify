@@ -10,7 +10,7 @@ const allowedSizes = ['x-small', 'small', 'default', 'large', 'x-large'] as cons
 type Size = typeof allowedSizes[number]
 
 export interface SizeProps {
-  size: Size
+  size?: Size
 }
 
 // Props
@@ -25,7 +25,7 @@ export const makeSizeProps = propsFactory({
 // Effect
 export function useSizeClasses (props: SizeProps) {
   const sizeClasses = computed(() => {
-    if (!props.size) return null
+    if (!props.size) return 'v-size--default'
 
     return `v-size--${props.size}`
   })

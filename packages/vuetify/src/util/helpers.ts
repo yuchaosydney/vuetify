@@ -1,6 +1,5 @@
-import type { VuetifyIcon } from 'vuetify/types/services/icons'
 import type { DataTableCompareFunction, SelectItemKey, ItemGroup } from 'vuetify/types'
-import type { ComponentInternalInstance, Slots } from 'vue'
+import type { Slots } from 'vue'
 
 import { defineComponent, h } from 'vue'
 
@@ -163,21 +162,6 @@ export const keyCodes = Object.freeze({
   pageup: 33,
   pagedown: 34,
 })
-
-// This remaps internal names like '$cancel' or '$vuetify.icons.cancel'
-// to the current name or component for that icon.
-export function remapInternalIcon (vm: ComponentInternalInstance, iconName: string): VuetifyIcon {
-  if (!iconName.startsWith('$')) {
-    return iconName
-  }
-
-  // Get the target icon name
-  const iconPath = `$vuetify.icons.values.${iconName.split('$').pop()!.split('.').pop()}`
-
-  // Now look up icon indirection name,
-  // e.g. '$vuetify.icons.values.cancel'
-  return getObjectValueByPath(vm.ctx, iconPath, iconName)
-}
 
 export function keys<O> (o: O) {
   return Object.keys(o) as (keyof O)[]

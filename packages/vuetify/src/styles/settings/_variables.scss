@@ -266,3 +266,11 @@ $kbd-padding: .2rem .4rem !default;
 $kbd-background-color: #212529 !default;
 $input-top-spacing: 16px !default;
 $text-field-active-label-height: 12px !default;
+
+$sizes: (
+  'x-small',
+  'small',
+  'default',
+  'large',
+  'x-large'
+);
