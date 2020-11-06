@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`VItemGroup should not unregister children when is destroyed 1`] = `
+<div class="v-item-group">
+  <div class="item">
+    foo
+  </div>
+</div>
+`;
+
+exports[`VItemGroup should not unregister children when is destroyed 2`] = `
+<div>
+  something else
+</div>
+`;
+
+exports[`VItemGroup should select the first item if mandatory and no value 1`] = `
+<div class="v-item-group">
+  <div class="item">
+    foo
+  </div>
+</div>
+`;
+
+exports[`VItemGroup should update mandatory to first non-disabled item 1`] = `
+<div class="v-item-group">
+  <div class="item">
+    foo
+  </div>
+  <div class="item v-item--active">
+    foo
+  </div>
+</div>
+`;
+
+exports[`VItemGroup should use provided active class 1`] = `
+<div class="v-item-group">
+  <div class="item v-item--active">
+    foo
+  </div>
+  <div class="item">
+    foo
+  </div>
+</div>
+`;
