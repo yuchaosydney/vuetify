@@ -1,7 +1,7 @@
 // Utilities
 import { capitalize, computed, inject, provide, ref, watch } from 'vue'
 import { useVuetify } from '@/framework'
-import { colorToInt, colorToRGB, contrastRatio } from '../util'
+import { colorToInt, colorToRGB, contrastRatio } from '@/util'
 
 // Types
 import type { InjectionKey, Ref } from 'vue'

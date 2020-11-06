@@ -2,32 +2,32 @@
   <v-app>
     <foo/>
     <div>
-      <div v-for="color in colors" :class="['box', color, `${color}--on`]" :key="color">{{ color }}</div>
+      <div v-for="color in colors" :class="['box', `bg-${color}`, `on-${color}`]" :key="color">{{ color }}</div>
     </div>
     <div>
-      <div v-for="color in textColors" :class="['box', `${color}--text`]" :key="`${color}--text`">{{ color }}</div>
+      <div v-for="color in textColors" :class="['box', `text-${color}`, 'border', `border-${color}`]" :key="color">{{ color }}</div>
     </div>
-    <v-theme-provider theme="dark">
+    <v-theme-provider theme="dark" class="padding">
       <foo/>
       <div>
-        <div v-for="color in colors" :class="['box', color, `${color}--on`]" :key="color">{{ color }}</div>
+        <div v-for="color in colors" :class="['box', `bg-${color}`, `on-${color}`]" :key="color">{{ color }}</div>
       </div>
       <div>
-        <div v-for="color in textColors" :class="['box', `${color}--text`]" :key="`${color}--text`">{{ color }}</div>
+        <div v-for="color in textColors" :class="['box', `text-${color}`, 'border', `border-${color}`]" :key="color">{{ color }}</div>
       </div>
-      <v-theme-provider theme="contrast">
+      <v-theme-provider theme="contrast" class="padding">
         <div>
-          <div v-for="color in colors" :class="['box', color, `${color}--on`]" :key="color">{{ color }}</div>
+          <div v-for="color in colors" :class="['box', `bg-${color}`, `on-${color}`]" :key="color">{{ color }}</div>
         </div>
         <div>
-          <div v-for="color in textColors" :class="['box', `${color}--text`]" :key="`${color}--text`">{{ color }}</div>
+          <div v-for="color in textColors" :class="['box', `text-${color}`, 'border', `border-${color}`]" :key="color">{{ color }}</div>
         </div>
-        <v-theme-provider theme="light">
+        <v-theme-provider theme="light" class="padding">
           <div>
-            <div v-for="color in colors" :class="['box', color, `${color}--on`]" :key="color">{{ color }}</div>
+            <div v-for="color in colors" :class="['box', `bg-${color}`, `on-${color}`]" :key="color">{{ color }}</div>
           </div>
           <div>
-            <div v-for="color in textColors" :class="['box', `${color}--text`]" :key="`${color}--text`">{{ color }}</div>
+            <div v-for="color in textColors" :class="['box', `text-${color}`, 'border', `border-${color}`]" :key="color">{{ color }}</div>
           </div>
         </v-theme-provider>
       </v-theme-provider>
@@ -52,7 +52,7 @@
     setup () {
       return {
         colors: ['surface', 'primary', 'primaryVariant', 'secondary', 'secondaryVariant', 'success', 'warning', 'error', 'info'],
-        textColors: ['text', 'primary', 'primaryVariant', 'second', 'secondaryVariant', 'success', 'warning', 'error', 'info'],
+        textColors: ['text', 'primary', 'primaryVariant', 'secondary', 'secondaryVariant', 'success', 'warning', 'error', 'info'],
       }
     },
   }
@@ -63,5 +63,13 @@
     width: 150px;
     height: 150px;
     display: inline-block;
+  }
+
+  .border {
+    border: 4px solid;
+  }
+
+  .padding {
+    padding-left: 1rem
   }
 </style>
