@@ -4,15 +4,18 @@ import { VThemeProvider } from '../VThemeProvider'
 // Utilities
 import { defineComponent, h, ref } from 'vue'
 import { mount } from '@vue/test-utils'
-import { mockUseVuetify } from '../../../../test'
+import { createMockVuetifyInstance } from '../../../../test'
 
 describe('VThemeProvider.ts', () => {
   it('should use theme defined in prop', async () => {
-    mockUseVuetify()
-
     const wrapper = mount(VThemeProvider, {
       props: {
         theme: 'dark',
+      },
+      global: {
+        provide: {
+          ...createMockVuetifyInstance(),
+        },
       },
     })
 
@@ -20,26 +23,23 @@ describe('VThemeProvider.ts', () => {
   })
 
   it('should use default theme from options', async () => {
-    mockUseVuetify({
-      theme: {
-        defaultTheme: ref('foo'),
-      },
-    })
-
     const wrapper = mount(VThemeProvider, {
       props: {},
+      global: {
+        provide: {
+          ...createMockVuetifyInstance({
+            theme: {
+              defaultTheme: ref('foo'),
+            },
+          }),
+        },
+      },
     })
 
     expect(wrapper.classes('theme--foo')).toBeTruthy()
   })
 
   it('should not use parent value if nested', async () => {
-    mockUseVuetify({
-      theme: {
-        defaultTheme: ref('contrast'),
-      },
-    })
-
     const Test = defineComponent({
       setup () {
         return () => h(VThemeProvider, () =>
@@ -48,7 +48,17 @@ describe('VThemeProvider.ts', () => {
       },
     })
 
-    const wrapper = mount(Test)
+    const wrapper = mount(Test, {
+      global: {
+        provide: {
+          ...createMockVuetifyInstance({
+            theme: {
+              defaultTheme: ref('contrast'),
+            },
+          }),
+        },
+      },
+    })
 
     expect(wrapper.html()).toMatchSnapshot()
   })
