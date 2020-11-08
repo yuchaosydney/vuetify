@@ -1,7 +1,7 @@
 // Utilities
-import { capitalize, computed, inject, provide, ref, watch } from 'vue'
+import { computed, inject, provide, ref, watch } from 'vue'
 import { useVuetify } from '@/framework'
-import { colorToInt, colorToRGB, contrastRatio } from '@/util'
+import { colorToInt, colorToRGB, contrastRatio, createRange, intToHex, lighten, darken } from '@/util'
 
 // Types
 import type { InjectionKey, Ref } from 'vue'
@@ -10,9 +10,7 @@ interface BaseColors {
   background: string
   surface: string
   primary: string
-  primaryVariant: string
   secondary: string
-  secondaryVariant: string
   success: string
   warning: string
   error: string
@@ -20,16 +18,14 @@ interface BaseColors {
 }
 
 interface OnColors {
-  onBackground: string
-  onSurface: string
-  onPrimary: string
-  onPrimaryVariant: string
-  onSecondary: string
-  onSecondaryVariant: string
-  onSuccess: string
-  onWarning: string
-  onError: string
-  onInfo: string
+  'on-background': string
+  'on-surface': string
+  'on-primary': string
+  'on-secondary': string
+  'on-success': string
+  'on-warning': string
+  'on-error': string
+  'on-info': string
 }
 
 interface InternalTheme extends BaseColors, OnColors {
@@ -42,6 +38,10 @@ interface ThemeOption extends BaseColors, Partial<OnColors> {
 
 interface ThemeOptions {
   defaultTheme?: string
+  variations?: {
+    lighten?: number
+    darken?: number
+  }
   themes?: Record<string, ThemeOption>
 }
 
@@ -67,10 +67,17 @@ export const provideTheme = (props: { theme?: string } = {}): ThemeProvide => {
   const vuetify = useVuetify()
   const themeProvide = inject(VuetifyThemeSymbol, null)
 
-  const current = ref<string>(props.theme ?? themeProvide?.current.value ?? vuetify.theme.defaultTheme.value)
-  const themeClass = computed(() => `theme--${current.value}`)
+  const internal = ref<string | null>(null)
+  const current = computed<string>({
+    get: () => {
+      return props.theme ?? internal.value ?? themeProvide?.current.value ?? vuetify.theme.defaultTheme.value
+    },
+    set (theme: string) {
+      internal.value = theme
+    },
+  })
 
-  watch(() => props.theme, theme => theme && (current.value = theme))
+  const themeClass = computed(() => `theme--${current.value}`)
 
   const next = () => current.value = step(Object.keys(vuetify.theme.themes.value), current.value, 1)
   const prev = () => current.value = step(Object.keys(vuetify.theme.themes.value), current.value, -1)
@@ -101,9 +108,7 @@ const defaultThemes: Record<string, ThemeOption> = {
     background: '#eeeeee',
     surface: '#aaaaaa',
     primary: '#1976D2',
-    primaryVariant: '#83acd4',
     secondary: '#424242',
-    secondaryVariant: '#8c8c8c',
     accent: '#82B1FF',
     error: '#FF5252',
     info: '#2196F3',
@@ -114,26 +119,12 @@ const defaultThemes: Record<string, ThemeOption> = {
     background: '#555555',
     surface: '#333333',
     primary: '#2196F3',
-    primaryVariant: '#33ff33',
     secondary: '#424242',
-    secondaryVariant: '#1155ff',
     accent: '#FF4081',
     error: '#FF5252',
     info: '#2196F3',
     success: '#4CAF50',
     warning: '#FB8C00',
-  },
-  contrast: {
-    background: '#000000',
-    surface: '#222222',
-    primary: '#eeeeee',
-    primaryVariant: '#ee11ee',
-    secondary: '#ffff00',
-    secondaryVariant: '#11ffee',
-    success: '#00ff00',
-    warning: '#ffff00',
-    error: '#ff0000',
-    info: '#0000ff',
   },
 }
 
@@ -141,42 +132,51 @@ export const createTheme = (options?: ThemeOptions): ThemeInstance => {
   const styleEl = ref<HTMLStyleElement | undefined>()
   const defaultTheme = ref<string>(options?.defaultTheme ?? 'light')
   const themes = ref<Record<string, ThemeOption>>(options?.themes ?? defaultThemes)
+  const variations = ref({
+    lighten: options?.variations?.lighten ?? 2,
+    darken: options?.variations?.darken ?? 1,
+  })
 
   const toHex = (v: number) => `#${v.toString(16).repeat(3)}`
 
   const genOnColor = (color: string) => {
     // naive solution
-    const int = colorToInt(color)
     const goal = 8
     let curr = 0
-    while (contrastRatio(int, colorToInt(toHex(curr))) < goal && curr < 255) {
+    while (contrastRatio(color, toHex(curr)) < goal && curr < 255) {
       curr += 1
     }
     return toHex(curr)
   }
 
+  const genColorVariations = (name: string, color: string) => {
+    const obj: Record<string, string> = {}
+    for (const variation of (['lighten', 'darken'] as const)) {
+      const fn = variation === 'lighten' ? lighten : darken
+      for (const amount of createRange(variations.value[variation], 1)) {
+        obj[`${name}-${variation}-${amount}`] = intToHex(fn(colorToInt(color), amount))
+      }
+    }
+    return obj
+  }
+
   const computedThemes = computed(() => {
     return Object.keys(themes.value).reduce((obj, key) => {
-      const onColors: (keyof BaseColors)[] = [
-        'background',
-        'surface',
-        'primary',
-        'primaryVariant',
-        'secondary',
-        'secondaryVariant',
-        'success',
-        'warning',
-        'error',
-        'info',
-      ]
-      obj[key] = {
-        ...onColors.reduce((curr, color) => {
-          const onColor = `on${capitalize(color)}` as keyof OnColors
-          curr[onColor] = genOnColor(themes.value[key][color])
-          return curr
-        }, {} as OnColors),
+      const theme = {
+        ...genColorVariations('primary', themes.value[key].primary),
+        ...genColorVariations('secondary', themes.value[key].secondary),
         ...themes.value[key],
       }
+
+      for (const color of Object.keys(theme)) {
+        if (/on-[a-z]/.test(color) || theme[`on-${color}`]) continue
+
+        const onColor = `on-${color}` as keyof OnColors
+        theme[onColor] = genOnColor(theme[color]!)
+      }
+
+      obj[key] = theme as InternalTheme
+
       return obj
     }, {} as Record<string, InternalTheme>)
   })
@@ -218,7 +218,21 @@ export const createTheme = (options?: ThemeOptions): ThemeInstance => {
       classes.push(`.theme--${themeName} {\n${variables.join('\n')}\n}`)
     }
 
-    styleEl.value!.innerHTML = classes.join('\n')
+    // Assumption is that all theme objects have the same keys
+    const firstTheme = Object.keys(computedThemes.value)[0]
+    for (const key of Object.keys(computedThemes.value[firstTheme])) {
+      if (/on-[a-z]/.test(key)) {
+        classes.push(`.v-theme-provider .${key} {\n\tcolor: rgb(var(--v-theme-${key}));\n}`)
+      } else {
+        classes.push(
+          `.v-theme-provider .bg-${key} {\n\tbackground: rgb(var(--v-theme-${key}));\n}`,
+          `.v-theme-provider .text-${key} {\n\tcolor: rgb(var(--v-theme-${key}));\n}`,
+          `.v-theme-provider .border-${key} {\n\tborder-color: rgb(var(--v-theme-${key}));\n}`,
+        )
+      }
+    }
+
+    if (styleEl.value) styleEl.value.innerHTML = classes.join('\n')
   }
 
   watch(themes, updateStyles, { deep: true, immediate: true })

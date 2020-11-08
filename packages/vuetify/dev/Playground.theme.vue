@@ -7,7 +7,7 @@
     <div>
       <div v-for="color in textColors" :class="['box', `text-${color}`, 'border', `border-${color}`]" :key="color">{{ color }}</div>
     </div>
-    <v-theme-provider theme="dark" class="padding">
+    <v-theme-provider class="padding">
       <foo/>
       <div>
         <div v-for="color in colors" :class="['box', `bg-${color}`, `on-${color}`]" :key="color">{{ color }}</div>
@@ -22,7 +22,7 @@
         <div>
           <div v-for="color in textColors" :class="['box', `text-${color}`, 'border', `border-${color}`]" :key="color">{{ color }}</div>
         </div>
-        <v-theme-provider theme="light" class="padding">
+        <v-theme-provider class="padding">
           <div>
             <div v-for="color in colors" :class="['box', `bg-${color}`, `on-${color}`]" :key="color">{{ color }}</div>
           </div>
@@ -36,13 +36,26 @@
 </template>
 
 <script>
-  import { defineComponent, h } from 'vue'
+  import { defineComponent, h, onBeforeMount } from 'vue'
   import { useTheme } from 'vuetify'
 
   const Foo = defineComponent({
     setup (props) {
       const theme = useTheme()
-      return () => h('div', { onClick: theme.next }, ['next'])
+      onBeforeMount(() => {
+        theme.setTheme('contrast',{
+          background: '#000000',
+          surface: '#222222',
+          primary: '#eeeeee',
+          secondary: '#ffff00',
+          success: '#00ff00',
+          warning: '#ffff00',
+          error: '#ff0000',
+          info: '#0000ff',
+          'primary-lighten-1': '#ff00ff'
+        })
+      })
+      return () => h('div', [h('div', { onClick: theme.next }, 'next'), h('input', { value: theme.current.value, onInput: e => theme.current.value = e.target.value })])
     }
   })
 
@@ -51,8 +64,8 @@
     components: { Foo },
     setup () {
       return {
-        colors: ['surface', 'primary', 'primaryVariant', 'secondary', 'secondaryVariant', 'success', 'warning', 'error', 'info'],
-        textColors: ['text', 'primary', 'primaryVariant', 'secondary', 'secondaryVariant', 'success', 'warning', 'error', 'info'],
+        colors: ['surface', 'primary-darken-1', 'primary', 'primary-lighten-1', 'primary-lighten-2', 'secondary-lighten-1', 'secondary', 'secondary-darken-1', 'success', 'warning', 'error', 'info'],
+        textColors: ['text', 'primary-darken-1', 'primary', 'primary-lighten-1', 'primary-lighten-2', 'secondary-lighten-1', 'secondary', 'secondary-darken-1', 'success', 'warning', 'error', 'info'],
       }
     },
   }
