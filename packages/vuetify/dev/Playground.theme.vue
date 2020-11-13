@@ -43,7 +43,7 @@
     setup (props) {
       const theme = useTheme()
       onBeforeMount(() => {
-        theme.setTheme('contrast',{
+        theme.setTheme('contrast', {
           background: '#000000',
           surface: '#222222',
           primary: '#eeeeee',
@@ -52,11 +52,11 @@
           warning: '#ffff00',
           error: '#ff0000',
           info: '#0000ff',
-          'primary-lighten-1': '#ff00ff'
+          'primary-lighten-1': '#ff00ff',
         })
       })
       return () => h('div', [h('div', { onClick: theme.next }, 'next'), h('input', { value: theme.current.value, onInput: e => theme.current.value = e.target.value })])
-    }
+    },
   })
 
   export default {

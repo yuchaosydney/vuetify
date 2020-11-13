@@ -32,18 +32,20 @@ interface InternalTheme extends BaseColors, OnColors {
   [key: string]: string
 }
 
-interface ThemeOption extends BaseColors, Partial<OnColors> {
+export interface ThemeOption extends BaseColors, Partial<OnColors> {
   [key: string]: string | undefined
 }
 
-interface ThemeOptions {
-  defaultTheme?: string
-  variations?: {
-    lighten?: number
-    darken?: number
+interface InternalThemeOptions {
+  defaultTheme: string
+  variations: {
+    lighten: number
+    darken: number
   }
-  themes?: Record<string, ThemeOption>
+  themes: Record<string, ThemeOption>
 }
+
+export type ThemeOptions = Partial<InternalThemeOptions>
 
 export interface ThemeInstance {
   themes: Ref<Record<string, InternalTheme>>
@@ -59,7 +61,7 @@ interface ThemeProvide {
   setTheme: (key: string, theme: ThemeOption) => void
 }
 
-export const VuetifyThemeSymbol: InjectionKey<ThemeProvide> = Symbol.for('vuetify-theme')
+const VuetifyThemeSymbol: InjectionKey<ThemeProvide> = Symbol.for('vuetify-theme')
 
 const step = <T>(arr: T[], current: T, steps: number): T => arr[(arr.indexOf(current) + arr.length + steps) % arr.length]
 
@@ -103,39 +105,47 @@ export const useTheme = () => {
   return theme
 }
 
-const defaultThemes: Record<string, ThemeOption> = {
-  light: {
-    background: '#eeeeee',
-    surface: '#aaaaaa',
-    primary: '#1976D2',
-    secondary: '#424242',
-    accent: '#82B1FF',
-    error: '#FF5252',
-    info: '#2196F3',
-    success: '#4CAF50',
-    warning: '#FB8C00',
+const defaultThemeOptions: ThemeOptions = {
+  defaultTheme: 'light',
+  variations: {
+    darken: 1,
+    lighten: 2,
   },
-  dark: {
-    background: '#555555',
-    surface: '#333333',
-    primary: '#2196F3',
-    secondary: '#424242',
-    accent: '#FF4081',
-    error: '#FF5252',
-    info: '#2196F3',
-    success: '#4CAF50',
-    warning: '#FB8C00',
+  themes: {
+    light: {
+      background: '#eeeeee',
+      surface: '#aaaaaa',
+      primary: '#1976D2',
+      secondary: '#424242',
+      accent: '#82B1FF',
+      error: '#FF5252',
+      info: '#2196F3',
+      success: '#4CAF50',
+      warning: '#FB8C00',
+    },
+    dark: {
+      background: '#555555',
+      surface: '#333333',
+      primary: '#2196F3',
+      secondary: '#424242',
+      accent: '#FF4081',
+      error: '#FF5252',
+      info: '#2196F3',
+      success: '#4CAF50',
+      warning: '#FB8C00',
+    },
   },
 }
 
 export const createTheme = (options?: ThemeOptions): ThemeInstance => {
+  const combinedOptions = {
+    ...defaultThemeOptions,
+    ...(options as InternalThemeOptions),
+  }
   const styleEl = ref<HTMLStyleElement | undefined>()
-  const defaultTheme = ref<string>(options?.defaultTheme ?? 'light')
-  const themes = ref<Record<string, ThemeOption>>(options?.themes ?? defaultThemes)
-  const variations = ref({
-    lighten: options?.variations?.lighten ?? 2,
-    darken: options?.variations?.darken ?? 1,
-  })
+  const defaultTheme = ref<string>(combinedOptions.defaultTheme)
+  const themes = ref<Record<string, ThemeOption>>(combinedOptions.themes)
+  const variations = ref(combinedOptions.variations)
 
   const toHex = (v: number) => `#${v.toString(16).repeat(3)}`
 
