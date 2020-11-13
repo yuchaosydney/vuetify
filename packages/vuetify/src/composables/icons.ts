@@ -1,16 +1,11 @@
 // Utilities
-import { markRaw } from 'vue'
+import { computed } from 'vue'
 import { useVuetify } from '@/framework'
 
 // Types
 import type { Component } from 'vue'
 
-export type VuetifyIconComponent = {
-  component: Component | string
-  props?: object
-}
-
-export type VuetifyIcon = string | VuetifyIconComponent
+export type VuetifyIcon = string | Component
 
 export interface VuetifyIcons {
   [name: string]: VuetifyIcon
@@ -49,15 +44,25 @@ export interface VuetifyIcons {
   minus: VuetifyIcon
 }
 
+export interface IconInstance {
+  component?: Component
+  icons: VuetifyIcons
+}
+
+export type IconOptions = Partial<IconInstance>
+
 export type InternalIcon = {
-  component: undefined
-  props: undefined
+  component: Component | undefined
+  props: {
+    [key: string]: unknown
+    icon: string
+  }
   name: string
   type: string
   isSvg: boolean
   isMaterialIcon: boolean
   isFontAwesome5: boolean
-} | { component: Component, props?: object }
+}
 
 function isFontAwesome5 (iconType: string): boolean {
   return ['fas', 'far', 'fal', 'fab', 'fad'].some(val => iconType.includes(val))
@@ -74,49 +79,39 @@ function isMaterialIcon (iconName: string) {
   return delimiterIndex <= -1
 }
 
-export const useIcons = () => {
-  const vuetify = useVuetify()
+export const useIcon = (props: { icon: string }) => {
+  const icon = computed(() => {
+    const vuetify = useVuetify()
+    let icon = props.icon
+    let component: Component | undefined = vuetify.icon.component
 
-  // return vuetify.icons
-  return {
-    get: (iconName: string): InternalIcon => {
-      if (iconName.startsWith('$')) {
-        const icon = vuetify.icons[iconName.slice(1)]
+    if (props.icon.startsWith('$')) {
+      const lookup = vuetify.icon.icons[props.icon.slice(1)]
 
-        if (!icon) throw new Error(`Could not find icon ${iconName}`)
+      if (!lookup) throw new Error(`Could not find icon ${props.icon}`)
 
-        if (typeof icon === 'string') {
-          iconName = icon
-        } else if (typeof icon.component === 'string') {
-          iconName = icon.component
-        } else {
-          return icon as { component: Component, props: object }
-        }
-      }
-
-      const svg = isSvgPath(iconName)
-      const materialIcon = !svg && isMaterialIcon(iconName)
-      const fontAwesome5 = !materialIcon && isFontAwesome5(iconName)
-
-      return {
-        component: undefined,
-        props: undefined,
-        name: iconName,
-        type: !svg ? iconName.slice(0, iconName.indexOf('-')) : '',
-        isSvg: svg,
-        isMaterialIcon: materialIcon,
-        isFontAwesome5: fontAwesome5,
-      }
-    },
-    set: (iconName: keyof VuetifyIcons, icon: VuetifyIcon) => {
-      if (typeof icon !== 'string' && typeof icon.component !== 'string') {
-        vuetify.icons[iconName] = {
-          component: markRaw(icon.component),
-          props: icon.props,
-        }
+      if (typeof lookup === 'string') {
+        icon = lookup
       } else {
-        vuetify.icons[iconName] = icon
+        icon = props.icon
+        component = lookup
       }
-    },
-  }
+    }
+
+    const svg = isSvgPath(icon)
+    const materialIcon = !svg && isMaterialIcon(icon)
+    const fontAwesome5 = !materialIcon && isFontAwesome5(icon)
+
+    return {
+      component,
+      props: { icon },
+      name: icon,
+      type: !svg && !component ? icon.slice(0, icon.indexOf('-')) : '',
+      isSvg: svg,
+      isMaterialIcon: materialIcon,
+      isFontAwesome5: fontAwesome5,
+    }
+  })
+
+  return { icon }
 }

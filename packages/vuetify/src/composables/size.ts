@@ -18,17 +18,17 @@ export const makeSizeProps = propsFactory({
   size: {
     type: String,
     default: 'default',
-    validator: (v: any) => allowedSizes.includes(v),
   } as Prop<Size>,
 })
 
 // Effect
-export function useSizeClasses (props: SizeProps) {
-  const sizeClasses = computed(() => {
+export function useSizeClass (props: SizeProps) {
+  const sizeClass = computed(() => {
     if (!props.size) return 'v-size--default'
+    else if (!allowedSizes.includes(props.size)) return null
 
     return `v-size--${props.size}`
   })
 
-  return { sizeClasses }
+  return { sizeClass }
 }
