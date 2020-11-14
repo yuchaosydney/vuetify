@@ -1,4 +1,5 @@
-import { defineComponent, h, InjectionKey, inject, provide, computed, Ref, ref, Prop, onBeforeUnmount } from 'vue'
+import { defineComponent, h, inject, provide, computed, ref, onBeforeUnmount } from 'vue'
+import type { InjectionKey, Ref, Prop } from 'vue'
 
 export const VuetifyLayoutKey: InjectionKey<any> = Symbol.for('vuetify-layout')
 
@@ -19,13 +20,13 @@ type Position = 'top' | 'left' | 'right' | 'bottom'
 interface LayoutValue {
   id: string
   position: Position
-  // amount: number
 }
 
 const generateLayers = (layout: string[], registered: string[], positions: Map<string, Position>, amounts: Map<string, Ref<number>>) => {
   let previousLayer = { top: 0, left: 0, right: 0, bottom: 0 }
   const layers = [{ id: '', layer: { ...previousLayer } }]
-  for (const id of layout.map(l => l.split(':')[0]).filter(l => registered.includes(l))) {
+  const ids = !layout.length ? registered : layout.map(l => l.split(':')[0]).filter(l => registered.includes(l))
+  for (const id of ids) {
     const position = positions.get(id)
     const amount = amounts.get(id)
     if (!position || !amount) continue
@@ -47,14 +48,13 @@ const generateLayers = (layout: string[], registered: string[], positions: Map<s
 }
 
 export const createLayout = (layout: Ref<string[]>) => {
-  // const entries = ref(new Map<string, LayoutValue>())
   const registered = ref<string[]>([])
   const positions = new Map<string, Position>()
   const amounts = new Map<string, Ref<number>>()
 
   const overlaps = computed(() => {
     const map = new Map<string, { position: Position, amount: number }>()
-    for (const h of layout.value.filter(item => item.indexOf(':') >= 0)) {
+    for (const h of layout.value.filter(item => item.includes(':'))) {
       const [top, bottom] = h.split(':')
       const topPosition = positions.get(top)
       const bottomPosition = positions.get(bottom)
@@ -100,8 +100,8 @@ export const createLayout = (layout: Ref<string[]>) => {
         const amount = amounts.get(id)
 
         return {
-          width: !isHorizontal ? `calc(100% - ${item.layer.left}px - ${item.layer.right}px)` : `${amount?.value || 0}px`,
-          height: isHorizontal ? `calc(100% - ${item.layer.top}px - ${item.layer.bottom}px)` : `${amount?.value || 0}px`,
+          width: !isHorizontal ? `calc(100% - ${item.layer.left}px - ${item.layer.right}px)` : `${amount?.value ?? 0}px`,
+          height: isHorizontal ? `calc(100% - ${item.layer.top}px - ${item.layer.bottom}px)` : `${amount?.value ?? 0}px`,
           marginLeft: isOpposite ? undefined : `${item.layer.left}px`,
           marginRight: isOpposite ? `${item.layer.right}px` : undefined,
           marginTop: `${item.layer.top}px`,
@@ -124,12 +124,12 @@ export const VLayout = defineComponent({
   props: {
     layout: {
       type: Array,
-      required: true,
+      // required: true,
     } as Prop<string[]>,
     fullHeight: Boolean,
   },
   setup (props, { slots }) {
-    const layout = computed(() => props.layout || [])
+    const layout = computed(() => props.layout ?? [])
     createLayout(layout)
     return () => h('div', {
       style: {
