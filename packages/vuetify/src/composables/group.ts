@@ -1,8 +1,9 @@
 // Composables
 import { useProxiedModel } from './proxiedModel'
+import { LinkProps, useLink } from '@/composables/router'
 
 // Utilities
-import { computed, inject, onBeforeUnmount, onMounted, provide, reactive, toRef } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, provide, reactive, SetupContext, toRef } from 'vue'
 import { consoleWarn, deepEqual, findChildrenWithProvide, getCurrentInstance, getUid, propsFactory, wrapInArray } from '@/util'
 
 // Types
@@ -75,20 +76,24 @@ export type GroupItemProps = ExtractPropTypes<ReturnType<typeof makeGroupItemPro
 
 // Composables
 export function useGroupItem (
-  props: GroupItemProps,
+  props: GroupItemProps & LinkProps,
   injectKey: InjectionKey<GroupProvide>,
   required?: true,
+  attrs?: SetupContext['attrs']
 ): GroupItemProvide
 export function useGroupItem (
-  props: GroupItemProps,
+  props: GroupItemProps & LinkProps,
   injectKey: InjectionKey<GroupProvide>,
   required: false,
+  attrs?: SetupContext['attrs']
 ): GroupItemProvide | null
 export function useGroupItem (
-  props: GroupItemProps,
+  props: GroupItemProps & LinkProps,
   injectKey: InjectionKey<GroupProvide>,
   required = true,
+  attrs?: SetupContext['attrs']
 ): GroupItemProvide | null {
+  const link = ('to' in props || 'replace' in props || 'href' in props) && attrs ? useLink(props, attrs) : undefined
   const vm = getCurrentInstance('useGroupItem')
 
   if (!vm) {
@@ -123,7 +128,7 @@ export function useGroupItem (
   })
 
   const isSelected = computed(() => {
-    return group.isSelected(id)
+    return (link && link.isExactActive?.value) ?? group.isSelected(id)
   })
 
   const selectedClass = computed(() => isSelected.value && [group.selectedClass.value, props.selectedClass])

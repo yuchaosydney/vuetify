@@ -6,7 +6,7 @@ import { VBtn } from '@/components/VBtn'
 
 // Composables
 import { makeGroupItemProps, useGroupItem } from '@/composables/group'
-import { makeRouterProps } from '@/composables/router'
+import { makeRouterProps, useLink } from '@/composables/router'
 import { makeTagProps } from '@/composables/tag'
 import { makeThemeProps } from '@/composables/theme'
 import { useTextColor } from '@/composables/color'
@@ -53,7 +53,7 @@ export const VTab = defineComponent({
   },
 
   setup (props, { slots, attrs }) {
-    const { isSelected, select, selectedClass } = useGroupItem(props, VTabsSymbol)
+    const { isSelected, select, selectedClass } = useGroupItem(props, VTabsSymbol, undefined, attrs)
     const { textColorClasses: sliderColorClasses, textColorStyles: sliderColorStyles } = useTextColor(props, 'sliderColor')
     const isHorizontal = computed(() => props.direction === 'horizontal')
 
