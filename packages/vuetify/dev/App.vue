@@ -14,3 +14,8 @@
     },
   }
 </script>
+<style lang="scss">
+.layout-page-content{
+  width: 1450px;
+}
+</style>

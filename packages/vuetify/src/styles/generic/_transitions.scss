@@ -2,15 +2,15 @@
 
 @mixin transition-default() {
   &-enter-active {
-    transition: 0.3s settings.$standard-easing;
+    transition: 60s settings.$standard-easing;
   }
 
   &-leave-active {
-    transition: 0.3s settings.$standard-easing;
+    transition: 60s settings.$standard-easing;
   }
 
   &-move {
-    transition: transform .5s settings.$standard-easing;
+    transition: transform 100s settings.$standard-easing;
   }
 }
 
@@ -231,8 +231,8 @@
   @include transition-default();
 
   &-enter-from, &-leave-to {
-    opacity: 0;
-    transform: translateX(-15px);
+    // opacity: 0;
+    transform: translateX(0px);
   }
 }
 
