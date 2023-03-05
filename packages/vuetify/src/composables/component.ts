@@ -6,7 +6,7 @@ import type { PropType } from 'vue'
 
 export interface ComponentProps {
   class?: string | any[] | Record<string, any>
-  style?: string | any[] | Record<string, any>
+  style?: string | any[] | Record<number, any>
 }
 
 // Composables

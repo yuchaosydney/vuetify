@@ -132,6 +132,7 @@ export const VBtn = genericComponent<VBtnSlots>()({
     useSelectLink(link, group?.select)
 
     useRender(() => {
+    console.log('-------', props.style)
       const Tag = (link.isLink.value) ? 'a' : props.tag
       const hasPrepend = !!(props.prependIcon || slots.prepend)
       const hasAppend = !!(props.appendIcon || slots.append)
